@@ -30,7 +30,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'addition',
-						answer: addition
+						answer: addition.toFixed(2)
 					};
 					break;
 				case 1:
@@ -39,7 +39,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'subtraction',
-						answer: subtraction
+						answer: subtraction.toFixed(2)
 					};
 					break;
 				case 2:
@@ -48,7 +48,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'multiplication',
-						answer: multiplication
+						answer: multiplication.toFixed(2)
 					};
 					break;
 				case 3:
@@ -57,7 +57,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'division',
-						answer: division
+						answer: division.toFixed(2)
 					};
 					break;
 			}
