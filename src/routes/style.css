@@ -14,7 +14,7 @@ html {
 
 button {
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(to right,#4981ec,#8ca1c2);;
+    background: linear-gradient(to right,#4981ec,#8ca1c2);
     border: 3px solid white;
     border-radius: 15px;
     height: 5vh;

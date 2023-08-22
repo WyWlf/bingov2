@@ -1,5 +1,6 @@
 <script lang="ts">
 	/** @type {import('./$types').PageData} */
+	import bg_msc from '../assets/music/bg_music.mp3';
 	import Cookies from 'js-cookie';
 	import Card from './card.svelte';
 	import Span from './span.svelte';
@@ -8,6 +9,12 @@
 	let game_config: any = {};
 	let answers: Array<any> = [];
 	let questionString: Array<any> = [];
+	let bgMsc = new Audio(bg_msc)
+	bgMsc.volume = 0.1
+	bgMsc.loop = true
+	setTimeout(()=> {
+		bgMsc.play()
+	}, 1500)
 	if (Cookies.get('game_session') == null) {
 		let game = Math.floor(Math.random() * 999999 + 1);
 		Cookies.set('game_session', game.toString());
@@ -18,8 +25,8 @@
 		};
 
 		for (x = 0; x < 25; x++) {
-			let fVal = Math.floor(Math.random() * 50);
-			let lVal = Math.floor(Math.random() * 50);
+			let fVal = Math.floor(Math.random() * 25);
+			let lVal = Math.floor(Math.random() * 25);
 			let rand = Math.floor(Math.random() * 4);
 
 			switch (rand) {
@@ -120,21 +127,18 @@
 		};
 		return '' + fval + '' + operations[operator] + '' + lval + '';
 	}
-
 </script>
 
-<html lang="ts">
-	<div id="header">
-	</div>
-	<hr />
-	<div>
-		<Card {questionString}>
-			{#each answers as a}
-				<Span {a} />
-			{/each}
-		</Card>
-	</div>
-</html>
+<div id="header">
+</div>
+<hr />
+<div>
+	<Card {questionString}>
+		{#each answers as a}
+			<Span {a} />
+		{/each}
+	</Card>
+</div>
 
 <style>
 	#header {
