@@ -29,7 +29,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'addition',
-						answer: addition.toFixed(2)
+						answer: Math.round(addition * 100) / 100
 					};
 					break;
 				case 1:
@@ -38,7 +38,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'subtraction',
-						answer: subtraction.toFixed(2)
+						answer: Math.round(subtraction * 100) / 100
 					};
 					break;
 				case 2:
@@ -47,7 +47,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'multiplication',
-						answer: multiplication.toFixed(2)
+						answer: Math.round(multiplication * 100) / 100
 					};
 					break;
 				case 3:
@@ -56,7 +56,7 @@
 						firstVal: fVal,
 						secondVal: lVal,
 						operator: 'division',
-						answer: division.toFixed(2)
+						answer: Math.round(division * 100) / 100
 					};
 					break;
 			}
@@ -125,14 +125,13 @@
 
 <html lang="ts">
 	<div id="header">
-		<img src="/src/routes/assets/images/cat_tp.gif" alt="" />
 	</div>
 	<hr />
 	<div>
 		<Card {questionString}>
-			<!-- {#each answers as a}
+			{#each answers as a}
 				<Span {a} />
-			{/each} -->
+			{/each}
 		</Card>
 	</div>
 </html>
@@ -144,11 +143,5 @@
 		background-position: center;
 		height: 20vh;
 		align-items: end;
-	}
-	#header img {
-		box-shadow: 0px 0px 15px 5px black;
-		box-sizing: border-box;
-		height: 100px;
-		width: 100px;
 	}
 </style>

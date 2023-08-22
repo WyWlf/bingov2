@@ -1,13 +1,16 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
     import '../style.css'
     export let questionString: Array<any> = []
-    setTimeout(() => {
-        let question_iterator = 0
-        let answer = eval(questionString[0])
-       
-
-    }, 100);
+    import {user_answer} from './config'
+    let question_iterator = 0
+    user_answer.subscribe(value => {
+        let answer = eval(questionString[question_iterator])
+        if (value == answer){
+            console.log('correct')
+        } else {
+            console.log('wrong')
+        }
+    })
 </script>
 <div class="card-container">
     <div class="question">

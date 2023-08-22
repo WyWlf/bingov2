@@ -1,10 +1,8 @@
 <script lang="ts">
-	import { writable } from "svelte/store";
-
     export let a: any
-    export let user_answer: any
+    import {user_answer} from './config'
     function getValue(this: any){
-      
+        user_answer.set(parseFloat(this.innerText))
     }
 </script>
 
