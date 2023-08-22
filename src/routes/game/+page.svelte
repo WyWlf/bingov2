@@ -5,11 +5,10 @@
 	import Span from './span.svelte';
 	import { onMount } from 'svelte';
 	let url = '../php/game_configs/' + Cookies.get('game_session') + '.json';
-	export let data: any;
 	let game_config: any = {};
 	let answers: Array<any> = [];
 	let questionString: Array<any> = [];
-	if (data.post.cookie == null) {
+	if (Cookies.get('game_session') == null) {
 		let game = Math.floor(Math.random() * 999999 + 1);
 		Cookies.set('game_session', game.toString());
 		let path = '' + game + '.json';
@@ -131,9 +130,9 @@
 	<hr />
 	<div>
 		<Card {questionString}>
-			{#each answers as a}
+			<!-- {#each answers as a}
 				<Span {a} />
-			{/each}
+			{/each} -->
 		</Card>
 	</div>
 </html>

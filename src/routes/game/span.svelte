@@ -4,7 +4,7 @@
     export let a: any
     export let user_answer: any
     function getValue(this: any){
-        user_answer = writable(parseInt(this.innerText))
+      
     }
 </script>
 
