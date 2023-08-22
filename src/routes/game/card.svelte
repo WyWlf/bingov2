@@ -1,14 +1,17 @@
 <script lang="ts">
     import '../style.css'
     export let questionString: Array<any> = []
-    import {user_answer} from './config'
+    import {user_answer, current_tile} from './config'
     let question_iterator = 0
     user_answer.subscribe(value => {
         let answer = eval(questionString[question_iterator])
-        if (value == answer){
+        if (value == answer && value != null){
             console.log('correct')
-        } else {
+            current_tile.set(1)
+        } 
+        else if (value != answer && value != null){
             console.log('wrong')
+            current_tile.set(2)
         }
     })
 </script>

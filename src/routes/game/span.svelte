@@ -1,8 +1,15 @@
 <script lang="ts">
     export let a: any
-    import {user_answer} from './config'
+    import {user_answer, current_tile} from './config'
     function getValue(this: any){
         user_answer.set(parseFloat(this.innerText))
+        current_tile.subscribe(value => {
+            if (value != null && value == 1){
+
+            } else if (value != null && value == 1){
+
+            }
+        })
     }
 </script>
 
