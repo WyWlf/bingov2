@@ -1,7 +1,7 @@
 <script lang="ts">
 	// @ts-nocheck comment
 	import '../style.css';
-	import { hp, count, current_question, comboCounter, time } from './config';
+	import { hp, count, current_question, comboCounter, time, win_status } from './config';
 	import { get } from 'svelte/store';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
 	export let questionString: Array<any> = [];
@@ -34,9 +34,16 @@
 	time.subscribe((value) => {
 		countdown = value;
 	});
-	setInterval(() => {
+	let interv = setInterval(() => {
 		time.update((prev) => prev - 1);
 	}, 1000);
+
+	win_status.subscribe(value => {
+		if (value > 0){
+			clearInterval(interv)
+		}
+	})
+
 	$: if (countdown == 0) {
 		hp.update((prev) => prev - 1);
 		time.set(60);

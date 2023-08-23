@@ -3,7 +3,7 @@
     import audio from '../assets/music/mixkit-arcade-game-jump-coin-216.wav';
     import audio2 from '../assets/music/mixkit-game-click-1114.wav';
     import '../style.css'
-
+	import { onMount } from 'svelte';
     let user: any = Cookies.get('username')
     function audioEff(){
         let sf = new Audio(audio);
@@ -14,6 +14,10 @@
         let sf = new Audio(audio2);
         sf.volume = 0.3
         sf.play()
+    }
+    if (localStorage['token'] == null || localStorage['token'] == 0){
+        window.location.reload()
+        localStorage['token'] = 1
     }
 </script>
 <html lang="ts">
