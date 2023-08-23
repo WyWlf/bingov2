@@ -1,5 +1,4 @@
 <script lang="ts">
-	// @ts-nocheck comment
 	import '../style.css';
 	import { hp, count, current_question, comboCounter, time, win_status } from './config';
 	import { get } from 'svelte/store';
