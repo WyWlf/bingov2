@@ -85,16 +85,24 @@
 		</div>
 	</div>
 	<div class="card">
-		<span class="card-th">B</span>
-		<span class="card-th">I</span>
-		<span class="card-th">N</span>
-		<span class="card-th">G</span>
-		<span class="card-th">O</span>
+		<slot />
+	</div>
+</div>
+<div class="mobile-view">	
+	<div class="question-box">
+		<p>Game mode: Single Player Mode</p>
+		<hr>
+		<span>{questionString[counter]}</span>
+	</div>	
+	<div class="card">
 		<slot />
 	</div>
 </div>
 
 <style>
+	.mobile-view {
+		display: none;
+	}
 	.question-box {
 		height: 20vh;
 		background-color: white;
@@ -111,28 +119,11 @@
 	.card {
 		display: grid;
 		grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-		margin: 3em;
+		margin: 3rem;
 		text-align: center;
 		border: 3px solid white;
 		box-sizing: border-box;
 		background: linear-gradient(to right, #b31ace, #39175c);
-		box-shadow: 0px 0px 25px 5px white;
-	}
-	.card span {
-		color: skyblue;
-		font-size: 2em;
-		display: flex;
-		border: 3px solid white;
-		width: 250px;
-		align-items: center;
-		justify-content: center;
-		height: 140px;
-		font-family: 'Lilita One', cursive;
-	}
-
-	.card-th {
-		font-size: 5em !important;
-		color: #f2a7ff !important;
 		box-shadow: 0px 0px 25px 5px white;
 	}
 
@@ -146,21 +137,66 @@
 	.question div {
 		display: flex;
 		align-items: center;
-		gap: 1em;
+		gap: 0.75rem;
 	}
 	.question div span {
 		display: flex;
 		align-items: center;
-		font-size: 3em;
+		font-size: 2rem;
 		font-family: 'Lilita One', cursive;
 	}
 	.question p {
 		font-family: 'Lilita One', cursive;
-		font-size: 3em;
+		font-size: 2rem;
 		color: white;
 	}
 	.question img {
-		height: 75px;
-		width: 75px;
+		height: 3rem;
+		width: 3rem;
 	}
+
+	@media (min-width: 1024px){
+		.question-box {
+			height: 10vh;
+			font-size: 1em;
+		}
+	}
+	@media (max-width: 768px){
+		hr {
+			width: 100%;
+		}
+		.mobile-view {
+			display: block;
+		}
+		.card-container {
+			display: none;
+		}
+		.card {
+			display: grid;
+			width: auto;
+			/* grid-template-columns: repeat(5, minmax(1fr, 15vw));
+			grid-template-rows: (repeat(5 , minmax(1fr, 10vh))); */
+		}
+		.mobile-view > .question-box {
+			display: flex;
+			flex-direction: column;;
+			border-radius: 10px;
+			height: max-content;
+		}
+
+		.question-box span {
+			align-self: center;
+			font-size: 2rem;
+		}
+
+		.card img {
+			margin: auto;
+			height: 3rem;
+			width: 3rem;
+		}
+		.question-box p {
+			font-size: 1.2rem;
+			font-family: light;
+		}
+    }
 </style>

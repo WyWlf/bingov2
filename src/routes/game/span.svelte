@@ -79,17 +79,38 @@
 <style>
     span {
         color: skyblue;
-        font-size: 2em;
+        font-size: 2rem;
         display: flex;
         border: 3px solid white;
-        width: 250px;
+        width: 15vw;
         align-items: center;
         justify-content: center;
-        height: 140px;
+        height: 100%;
         font-family: 'Lilita One', cursive;
     }
 
     span:hover{
         box-shadow: 0px 0px 15px 5px white;
+    }
+
+    @media (max-width: 2168px){
+        span {
+            font-size: 1.5em;
+            width: 7vw;
+        }
+    }
+
+    @media (max-width: 1024px){
+        span {
+            font-size: 1.5em;
+            width: 8vw;
+        }
+    }
+    @media (max-width: 768px){
+        span {
+            font-size: 1.5em;   
+            width: auto;
+            height: 10vw;
+        }
     }
 </style>

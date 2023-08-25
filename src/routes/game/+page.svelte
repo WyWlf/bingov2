@@ -218,4 +218,9 @@
 		grid-template-columns: 50% 50%;
 		justify-items: start;
 	}
+	@media (max-width: 768px){
+		#header, hr {
+			display: none;
+		}
+    }
 </style>
