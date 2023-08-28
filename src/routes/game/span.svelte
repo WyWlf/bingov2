@@ -93,10 +93,10 @@
         box-shadow: 0px 0px 15px 5px white;
     }
 
-    @media (max-width: 2168px){
+    @media (max-width: 9999px){
         span {
             font-size: 1.5em;
-            width: 7vw;
+            width: 9vw;
         }
     }
 
@@ -108,9 +108,9 @@
     }
     @media (max-width: 768px){
         span {
-            font-size: 1.5em;   
+            font-size: 1.3rem;   
             width: auto;
-            height: 10vw;
+            height: 8vh;
         }
     }
 </style>

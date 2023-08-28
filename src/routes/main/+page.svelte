@@ -36,8 +36,8 @@
     #btn-div{
         display: grid;
         justify-content: center;
-        row-gap: 2em;
-        padding: 5em;
+        row-gap: 2rem;
+        padding: 5rem;
         color: white;
     }
 
@@ -48,11 +48,11 @@
         border-radius: 15px;
         height: 10vh;
         width: 25vw;
-        font-size: 2em;
+        font-size: 2rem;
     }
 
     p {
         justify-self: center;
-        font-size: 1.5em;
+        font-size: 1.5rem;
     }
 </style>

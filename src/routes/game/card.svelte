@@ -48,14 +48,22 @@
 		hp.update((prev) => prev - 1);
 		time.set(60);
 		let soundeff = new Audio(incorrect);
-		soundeff.play();
+		soundeff.play()
+		comboCounter.set(0)
 	}
 </script>
 
 <div class="card-container">
 	<div class="question">
 		<div class="question-box">
-			<span>{questionString[counter]}</span>
+			<span>Question: &nbsp; {questionString[counter]} = ?</span>
+		</div>
+		<div>
+			<p>Timer:</p>
+			<span
+				><img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" />
+				{countdown}s <img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" /></span
+			>
 		</div>
 		<div>
 			<p>Lives:</p>
@@ -72,13 +80,6 @@
 			</span>
 		</div>
 		<div>
-			<p>Timer:</p>
-			<span
-				><img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" />
-				{countdown}s <img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" /></span
-			>
-		</div>
-		<div>
 			<p>Game mode:</p>
 			<br />
 			<span>Singe Player Mode</span>
@@ -90,9 +91,23 @@
 </div>
 <div class="mobile-view">	
 	<div class="question-box">
-		<p>Game mode: Single Player Mode</p>
+		<p style="margin: auto; font-weight:bold">Single Player Mode</p>
+		<span style="margin: auto; display: flex">
+			<img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" />
+			<span id="timer">{countdown}s</span> <img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" />
+		</span>
+		<div class="player-stat">
+			<p style="display: flex; align-items:center">Lives:
+			{#each lifeObj as { count }, i}
+			<span><img src="/src/routes/assets/images/heart.png" alt="" /></span>
+			{/each}
+			</p>
+			<p style="display: flex; align-items:center">Combo:&nbsp;<span style="font-size: 2rem; font-weight:bold; font-family: Arial">{comboCount}</span>
+				&nbsp;<span><img src="/src/routes/assets/images/combo.gif" alt="" style="display: {threshold}" /></span>
+			</p>
+		</div>
 		<hr>
-		<span>{questionString[counter]}</span>
+		<span>Question: &nbsp; {questionString[counter]} = ?</span>
 	</div>	
 	<div class="card">
 		<slot />
@@ -100,6 +115,21 @@
 </div>
 
 <style>
+	.player-stat {
+		margin: 2rem;
+		margin-bottom: 0;
+	}
+	.question-box img {
+		height: 4rem;
+		width: 4rem;
+	}
+	.player-stat img {
+		height: 2rem;
+		width: 2rem;
+	}
+	#timer {
+		font-size: 3rem;
+	}
 	.mobile-view {
 		display: none;
 	}
@@ -163,7 +193,7 @@
 	}
 	@media (max-width: 768px){
 		hr {
-			width: 100%;
+			width: 90%;
 		}
 		.mobile-view {
 			display: block;
@@ -173,7 +203,9 @@
 		}
 		.card {
 			display: grid;
-			width: auto;
+			width: 90vw;
+			margin: auto;
+			margin-top: 10%;
 			/* grid-template-columns: repeat(5, minmax(1fr, 15vw));
 			grid-template-rows: (repeat(5 , minmax(1fr, 10vh))); */
 		}
@@ -181,7 +213,7 @@
 			display: flex;
 			flex-direction: column;;
 			border-radius: 10px;
-			height: max-content;
+			height: fit-content;
 		}
 
 		.question-box span {
@@ -189,11 +221,11 @@
 			font-size: 2rem;
 		}
 
-		.card img {
+		/* .card img {
 			margin: auto;
 			height: 3rem;
 			width: 3rem;
-		}
+		} */
 		.question-box p {
 			font-size: 1.2rem;
 			font-family: light;

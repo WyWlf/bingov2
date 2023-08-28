@@ -16,7 +16,7 @@
                 username: username,
                 password: password
             }
-            const res = await fetch('http://localhost/sv/bingo/src/routes/php/login_function.php', {
+            const res = await fetch('http://192.168.254.104/sv/bingo/src/routes/php/login_function.php', {
                 method: 'POST',
                 body:  JSON.stringify(userForm)                
             })

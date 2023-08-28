@@ -30,9 +30,9 @@
 		};
 
 		for (x = 0; x < 25; x++) {
-			let fVal = Math.floor(Math.random() * 25);
-			let lVal = Math.floor(Math.random() * 25);
-			let rand = Math.floor(Math.random() * 4);
+			let fVal = Math.floor(1 + Math.random() * 25);
+			let lVal = Math.floor(1 + Math.random() * 25);
+			let rand = Math.floor(1 + Math.random() * 4);
 
 			switch (rand) {
 				case 0:
@@ -74,7 +74,7 @@
 			}
 		}
 		onMount(async function game_config_store() {
-			const res = await fetch('http://localhost/sv/bingo/src/routes/php/game_config_save.php', {
+			const res = await fetch('http://192.168.254.104/sv/bingo/src/routes/php/game_config_save.php', {
 				method: 'POST',
 				body: JSON.stringify(game_config)
 			});
@@ -174,7 +174,7 @@
 			<Span {a} {i}/>
 		{/each}
 	</Card>
-	<Modal centered {opened} target='body' on:close={() => (window.location.href= '/singleplayer')} title="Game ended" size="30%" overflow="inside"  {closeOnClickOutside} {closeOnEscape}>
+	<Modal centered {opened} target='body' on:close={() => (window.location.href= '/singleplayer')} title="Game ended" overflow="inside"  {closeOnClickOutside} {closeOnEscape}>
 		<div class="modal-container">
 			<span>🎉This game is finished!🎉</span>
 			<br><br><hr>
@@ -215,7 +215,7 @@
 	}
 	.modal-container .game-stat{
 		display: grid;
-		grid-template-columns: 50% 50%;
+		grid-template-columns: 55% 45%;
 		justify-items: start;
 	}
 	@media (max-width: 768px){
