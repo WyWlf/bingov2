@@ -1,15 +1,35 @@
 <script lang="ts">
 	// @ts-nocheck comment
 	import '../style.css';
-	import { hp, count, current_question, comboCounter, time, win_status } from './config';
+	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status} from './config';
 	import { get } from 'svelte/store';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
+	// import lowTime from '../assets/music/time.wav';
 	export let questionString: Array<any> = [];
 	let counter = 0;
+	trigger.subscribe(val => {
+		if (val == true){
+			if (counter == 0){
+				questionString.splice(0, 1)
+				trigger.set(false)
+			}else {
+				questionString.splice(counter, 1)
+				trigger.set(false)
+			}
+		}
+	})
+	$: question = questionString[counter]
+	// $: console.log(question)
+ 	// setInterval(()=> {
+	// 	console.log(questionString)
+	// 	console.log(get(max))
+	// }, 5000)
+
 	count.subscribe((value) => {
-		counter = value;
-	});
-	$: question = questionString[counter];
+		counter = value
+		max.set(questionString.length-1)
+	})
+
 	$: current_question.set(Math.round(eval(question) * 100) / 100);
 
 	let lifeObj = [];
@@ -45,11 +65,23 @@
 	})
 
 	$: if (countdown == 0) {
+		bonus_hp.set(0)
 		hp.update((prev) => prev - 1);
+		comboCounter.set(0)
+		count.update(prev => prev + 1)
+		threshold = 'none'
 		time.set(60);
 		let soundeff = new Audio(incorrect);
 		soundeff.play()
-		comboCounter.set(0)
+	}
+	let border_warn = '';
+	$: if (countdown < 15) {
+		// let soundeff = new Audio(lowTime)
+		// soundeff.volume = 0.3
+		// soundeff.play()
+		border_warn = 'active'
+	} else {
+		border_warn = ''
 	}
 </script>
 
@@ -67,9 +99,11 @@
 		</div>
 		<div>
 			<p>Lives:</p>
-			{#each lifeObj as { count }, i}
-				<span><img src="/src/routes/assets/images/heart.png" alt="" /></span>
-			{/each}
+			{#key lifeObj}
+				{#each lifeObj as { count }, i}
+					<span><img class="heart" src="/src/routes/assets/images/heart.png" alt="" /></span>
+				{/each}
+			{/key}
 		</div>
 		<div>
 			<p>Combo counter:</p>
@@ -85,7 +119,7 @@
 			<span>Singe Player Mode</span>
 		</div>
 	</div>
-	<div class="card">
+	<div class="card {border_warn}">
 		<slot />
 	</div>
 </div>
@@ -115,6 +149,18 @@
 </div>
 
 <style>
+	.heart {
+		animation: beat 1s infinite linear;
+		animation-timing-function: steps(10);
+	}
+	@keyframes beat{
+		0% {
+			scale: 1.1
+		}
+		85% {
+			scale: 1
+		}
+	}
 	.player-stat {
 		margin: 2rem;
 		margin-bottom: 0;
@@ -154,9 +200,20 @@
 		border: 3px solid white;
 		box-sizing: border-box;
 		background: linear-gradient(to right, #b31ace, #39175c);
-		box-shadow: 0px 0px 25px 5px white;
+		box-shadow: 0px 0px 25px 15px rgb(29, 35, 97);
 	}
-
+	.card.active {
+		animation: timeLow 1s infinite linear;
+		animation-timing-function: steps(50);
+	}
+	@keyframes timeLow{
+		0% {
+			box-shadow: 0px 0px 25px 15px rgb(29, 35, 97);
+		}
+		85% {
+			box-shadow: 0px 0px 25px 15px rgb(199, 49, 29);
+		}
+	}
 	.question {
 		display: flex;
 		flex-direction: column;

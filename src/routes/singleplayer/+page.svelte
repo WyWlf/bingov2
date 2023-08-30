@@ -27,7 +27,7 @@
     </div>
     <hr>
     <div id="btn-div">
-        <p>Playing in <span>Single Player Mode</span></p>
+        <p>Single Player Mode</p>
         <a href="/game" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Operations</button></a>
         <a href="/" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Geometry</button></a>
         <a href="/" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Fractions</button></a>
@@ -58,9 +58,5 @@
     p {
         justify-self: center;
         font-size: 1.5em;
-    }
-
-    span{
-        font-weight: bold;
     }
 </style>
