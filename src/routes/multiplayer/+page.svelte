@@ -35,7 +35,7 @@
         <a href="/multiplayer_room" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Create room</button></a>
         <button on:focus={audioEff} on:mouseover={audioEff} on:click={openModal}>Join room</button>
         <br><br>
-        
+        <a href="/main" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Back</button></a>
     </div>
 </html>
 <Modal centered {opened} on:close={()=> {opened = false}} target='body' title="Join room" overflow="inside"  {closeOnClickOutside} {closeOnEscape}>

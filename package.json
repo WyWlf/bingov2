@@ -20,7 +20,6 @@
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.10.1",
 		"svelte": "^4.0.5",
-		"svelte-atoms": "^0.0.27",
 		"svelte-check": "^3.4.3",
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
@@ -30,6 +29,8 @@
 	"dependencies": {
 		"@svelteuidev/core": "^0.15.1",
 		"@types/js-cookie": "^3.0.3",
-		"js-cookie": "^3.0.5"
+		"js-cookie": "^3.0.5",
+		"socket.io": "^4.7.2",
+		"socket.io-client": "^4.7.2"
 	}
 }

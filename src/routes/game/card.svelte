@@ -1,7 +1,7 @@
 <script lang="ts">
 	// @ts-nocheck comment
 	import '../style.css';
-	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status} from './config';
+	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status, multiplayer, game_start} from './config';
 	import { get } from 'svelte/store';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
 	// import lowTime from '../assets/music/time.wav';
@@ -63,7 +63,23 @@
 			clearInterval(interv)
 		}
 	})
-
+	hp.subscribe(val => {
+		if (val <= 0){
+			clearInterval(interv)
+		}
+	})
+	multiplayer.subscribe(val => {
+		if (val == true){
+			clearInterval(interv)
+		}
+	})
+	game_start.subscribe(val => {
+		if (val == true){
+			let intervs = setInterval(() => {
+				time.update((prev) => prev - 1);
+			}, 1000);
+		}
+	})
 	$: if (countdown == 0) {
 		bonus_hp.set(0)
 		hp.update((prev) => prev - 1);

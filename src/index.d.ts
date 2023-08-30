@@ -1,1 +1,1 @@
-declare module 'svelte-atoms/ContainerLoader.svelte'
+// declare module 'svelte-atoms/ContainerLoader.svelte'
