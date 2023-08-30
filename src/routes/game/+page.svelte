@@ -30,9 +30,9 @@
 		};
 
 		for (x = 0; x < 25; x++) {
-			let fVal = Math.floor(1 + Math.random() * 25);
-			let lVal = Math.floor(1 + Math.random() * 25);
-			let rand = Math.floor(1 + Math.random() * 4);
+			let fVal = Math.floor(Math.random() * 25);
+			let lVal = Math.floor(Math.random() * 25);
+			let rand = Math.floor(Math.random() * 4);
 
 			switch (rand) {
 				case 0:
@@ -96,11 +96,21 @@
 		return importPromise;
 	}
 
+	function UrlExists(url:string) {
+	var http = new XMLHttpRequest();
+	http.open('GET', url, false);
+	http.send();
+	return http.status!=404;
+	}
+
 	async function InitializeVariables() {
 		let temp_config: Array<any> = [];
         let questionnaire: Array<any> = [];
-		const x = PromiseArray();
-		x.then((module) => {
+		let fileCheck = UrlExists('src/routes/php/game_configs/'+Cookies.get('game_session')+'.json')
+		console.log(fileCheck)
+		if (fileCheck == true){
+			const x = PromiseArray();
+			x.then((module) => {
 			for (let key in module.default) {
 				if (module.default.hasOwnProperty(key) && typeof module.default[key] == 'object') {
 					temp_config.push(module.default[key]);
@@ -114,6 +124,11 @@
 			})
             questionString = questionnaire
 		})
+		} else {
+			Cookies.remove('game_session')
+			window.location.href = '/singleplayer'
+		}
+
 	}
 	function getList(arr: Array<any>) {
 		let unshuffled = arr;
