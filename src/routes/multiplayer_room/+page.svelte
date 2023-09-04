@@ -20,6 +20,7 @@
         localStorage['token'] = 1
     }
     function host(){
+        Cookies.remove('multiplayer_session')
         Cookies.set('host', 'true')
     }
 </script>

@@ -265,7 +265,7 @@
 		}
 		.card {
 			display: grid;
-			width: 90vw;
+			width: 100%;
 			margin: auto;
 			margin-top: 10%;
 			/* grid-template-columns: repeat(5, minmax(1fr, 15vw));

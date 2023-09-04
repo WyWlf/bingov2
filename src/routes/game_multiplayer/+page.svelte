@@ -140,7 +140,9 @@
 		game_start.set(true)
 		removeModal()
 	}
-	
+
+	let logs: any = []
+
 	$: player_count = 0;
 	onMount(() => {
 		multiplayer.set(true);
@@ -149,16 +151,32 @@
 				room: session,
 				player: Cookies.get('username')
 			});
-			io.on('new-player', (data) => {
-				if (session == data['room']) {
-					player_count = data['players'].length;
-				}
-			});
 		}
+		io.on('new-player', (data) => {
+				console.log(data)
+				if (Cookies.get('multiplayer_session') == data['room']) {
+					player_count = data['players'].length;
+					logs = data['players']
+				}
+				console.log(logs)
+		});
+		io.emit('reconnect', {
+				game: Cookies.get('multiplayer_session'),
+				player: Cookies.get('username')
+			});
+		io.on('active', data => {
+			if (data['room'] == Cookies.get('multiplayer_session')) {
+				removeModal()
+			} else if (data == false){
+				Cookies.remove('multiplayer_session')
+				window.location.href = '/multiplayer'
+			}
+		})
 		io.emit('gameInfo', Cookies.get('multiplayer_session'))
 		io.on('gameInfoRes', data => {
 			if (Cookies.get('multiplayer_session') == data['room']){
 				player_count = data['players'].length
+				logs = data['players']
 			}
 		})
 		io.on('begin', data => {
@@ -174,6 +192,10 @@
 				clearInterval(time)
 				console.log(winner)
 			}
+		})
+
+		io.on('player-dc', data => {
+			console.log(data)
 		})
 	});
 
@@ -242,6 +264,11 @@
 			gameEnd = true;
 			opened = true;
 			clearInterval(time);
+			io.emit('player-kick', {
+				game: Cookies.get('multiplayer_session'),
+				player: Cookies.get('username')
+			})
+			Cookies.remove('multiplayer_session');
 		}
 	});
 
@@ -274,9 +301,10 @@
 		}
 	});
 	addEventListener('beforeunload', () => {
-		if (Cookies.get('multiplayer_session') != null){
-
-		}
+		io.emit('disconnected', {
+			game: Cookies.get('multiplayer_session'),
+			player: Cookies.get('username')
+		})
 	});
 
 	function returnMenu() {
@@ -286,10 +314,21 @@
 </script>
 
 <div class="wait-container" style="display: {multiplayer_header};">
+	<div class="title">
+		<h1>MATH</h1>
+		<h2>BINGO</h2>
+	</div>
 	<div class="wait-modal">
 		<p>Your game code is: <span>{session}</span></p>
 		<p>Players joined: {player_count}</p>
 		<p style="font-weight: bold;">Waiting for other players to join...</p>
+		<div class="room-logs">
+			{#key logs}
+				{#each logs as players}
+					<span>User <span style="font-weight: bolder; color: blue">{players}</span> has joined the game</span>
+				{/each}
+			{/key}
+		</div>
 		<div class="button-group-modal" style="display:flex; gap: 2rem">
 			{#if host == 'true'}
 			<button
@@ -297,9 +336,16 @@
 					gameStart()
 				}}>Start Game</button
 			>
-			<button>Cancel</button>
+			<button 
+				on:click={()=> {
+					window.location.href = '/multiplayer_room'
+				}}
+			>Cancel</button>
 			{:else}
-				<img src="src/routes/assets/images/loader.gif" alt="" style="height: 3rem; width: 3rem">
+				<div style="display: flex; flex-direction:column; align-items:center; gap: 1rem">
+					<img src="src/routes/assets/images/loader.gif" alt="" style="height: 3rem; width: 3rem">
+					<button>Leave</button>
+				</div>
 			{/if}
 		</div>
 	</div>
@@ -318,7 +364,7 @@
 	</div>
 </div>
 
-<hr />
+<hr style="display: {gameBody};" />
 	<div style="display: {gameBody};">
 		<Card {questionString}>
 			{#each answers as a, i}
@@ -387,6 +433,31 @@
 	</div>
 
 <style>
+	.room-logs {
+		display: flex;
+		flex-direction: column;
+		border: 1px solid black;
+		height: 20vh;
+		min-width: 20vw;
+		width: max-content;
+		align-items: center;
+		margin: 2rem;
+		gap: 1rem;
+		padding: 0.5rem;
+		border-radius: 1rem;
+		overflow-y: auto;
+	}
+	h1, h2 {
+		font-family: 'Lilita One', cursive;
+		-webkit-text-fill-color: rgb(20, 106, 177);
+		font-size: 7rem;
+		display: inline;
+		margin: 0.25em;
+	}
+
+	.room-logs span {
+		text-align: center;
+	}
 	#header {
 		height: 20svh;
 		height: 20vh;
@@ -397,13 +468,14 @@
 		box-shadow: 0px 0px 15px 1px blueviolet;
 	}
 	.button-group-modal button {
-		width: 20vw;
+		width: 10vw;
 	}
 	.wait-container {
 		display: flex;
-		height: 50svh;
-		height: 50vh;
-		justify-content: center;
+		flex-direction: column;
+		height: 100vh;
+		height: 100svh;
+		justify-content: flex-start;
 		align-items: center;
 		background-color: white;
 	}
@@ -456,8 +528,14 @@
 		}
 	}
 	@media (max-width: 468px) {
-		.button-group button {
+		.button-group-modal button {
 			width: 30vw;
+		}
+		h1, h2 {
+			font-size: 2rem;
+		}
+		.room-logs {
+			width: 60vw;
 		}
 	}
 </style>

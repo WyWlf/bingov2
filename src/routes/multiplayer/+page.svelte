@@ -36,10 +36,13 @@
             console.log('Room not found')
         })
     io.on('room-found', data => {
-        if (code == data['room']){
+        if (code == data['room'] && data != false){
             Cookies.set('multiplayer_session', data['room'])
             window.location.href = '/game_multiplayer'
             console.log('found')
+        } else if (data == false){
+            Cookies.remove('mutiplayer_session')
+            console.log('cannot rejoin')
         }
     })
 </script>
