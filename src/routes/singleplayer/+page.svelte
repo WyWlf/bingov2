@@ -51,12 +51,18 @@
         border: 3px solid white;
         border-radius: 15px;
         height: 10vh;
-        width: 25vw;
+        width: 50vw;
         font-size: 2em;
     }
 
     p {
         justify-self: center;
         font-size: 1.5em;
+    }
+    @media (max-width: 768px) {
+       button {
+         font-size: 1.5rem;
+         width: 70vw;
+       }
     }
 </style>

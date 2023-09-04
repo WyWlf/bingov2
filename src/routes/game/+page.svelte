@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { win_status, comboCounter, correct_count, wrong_count, hp, multiplayer, game_start } from './config';
+	import { win_status, comboCounter, correct_count, wrong_count, hp} from './config';
 	import bg_msc from '../assets/music/bg_music.mp3';
 	import Cookies from 'js-cookie';
 	import Card from './card.svelte';
@@ -8,24 +8,12 @@
 	import { Modal } from '@svelteuidev/core';
 	import { get } from 'svelte/store';
 
-	let session = '';
 	let opened = false;
 	let count = 0;
 	$: console.log(count);
 	let time = setInterval(() => {
 		count += 1;
 	}, 1000);
-
-	const getHeaders = (function (a) {
-		if (a == '') return {};
-		var b = {};
-		for (var i = 0; i < a.length; ++i) {
-			var p = a[i].split('=', 2);
-			if (p.length == 1) b[p[0]] = '';
-			else b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, ' '));
-		}
-		return b;
-	})(window.location.search.substr(1).split('&'));
 
 	localStorage['token'] = 0;
 	let url = '';
@@ -38,15 +26,9 @@
 		bgMsc.play();
 	}, 1500);
 
-	if (getHeaders['mode'] != null && getHeaders['mode'].length > 0) {
-		multiplayer.set(true);
-		bgMsc.volume = 0;
-		clearInterval(time);
-	}
 	if (Cookies.get('game_session') == null) {
 		let game = Math.floor(Math.random() * 999999 + 1);
 		Cookies.set('game_session', game.toString());
-		session = game.toString();
 		url = '../php/game_configs/' + game.toString() + '.json';
 		let path = '' + game + '.json';
 		let x: number = 0;
@@ -115,7 +97,6 @@
 			}
 		});
 	} else {
-		session = Cookies.get('game_session');
 		url = '../php/game_configs/' + Cookies.get('game_session') + '.json';
 		InitializeVariables();
 	}
@@ -212,67 +193,23 @@
 		}
 	});
 	addEventListener('beforeunload', () => {
-		Cookies.remove('game_session');
+		// Cookies.remove('game_session');
 	});
 
 	function returnMenu() {
 		Cookies.remove('game_session');
 		window.location.href = '/singleplayer';
 	}
-	let gameBody = '';
-	let multiplayer_header = 'none';
-	multiplayer.subscribe((val) => {
-		if (val == true) {
-			multiplayer_header = '';
-			gameBody = 'none';
-		} else {
-			multiplayer_header = 'none';
-			gameBody = '';
-		}
-	})
 
-	game_start.subscribe(val => {
-		if (val == true){
-			setInterval(() => {
-				count += 1;
-			}, 1000);
-		}
-	})
 </script>
 
-<div class="wait-container" style="display: {multiplayer_header};">
-	<div class="wait-modal">
-		<p>Your game code is: <span>{session}</span></p>
-		<p>Players joined: 1</p>
-		<p style="font-weight: bold;">Waiting for other players to join...</p>
-		<div class="button-group-modal" style="flex">
-			<button
-				on:click={() => {
-					gameBody = '';
-					multiplayer_header = 'none';
-					game_start.set(true)
-				}}>Start Game</button
-			>
-			<button>Cancel</button>
-		</div>
-	</div>
-</div>
+<div id="header">
 
-<div id="header" style="display: {gameBody};">
-	<div class="wait-modal">
-		{#if get(multiplayer) == true}
-			<p>Game code: <span style="font-weight: bold;">{session}</span></p>
-			<p>Players joined: <span style="font-weight: bold;">1</span></p>
-			<p>Mode: <span style="font-weight: bold;">Operations</span></p>
-			{:else if get(multiplayer) == false}
-			<p>Game code: <span style="font-weight: bold;">{session}</span></p>
-		{/if}
-	</div>
 </div>
 
 <hr />
-<body on:beforeunload={()=> {alert('hi')}}>
-<div style="display: {gameBody};">
+<body>
+<div>
 	<Card {questionString}>
 		{#each answers as a, i}
 			<Span {a} {i} />
@@ -316,7 +253,8 @@
 				<div class="game-stat button-group" style="justify-content: center;">
 					<button
 						on:click={() => {
-							location.reload();
+							Cookies.remove('game_session')
+							location.reload()
 						}}>Start a new match</button
 					>
 					<button
@@ -335,28 +273,6 @@
 		height: 20svh;
 		height: 20vh;
 		background-color: white;
-	}
-	.button-group-modal button:hover {
-		color: rgb(34, 255, 255);
-		box-shadow: 0px 0px 15px 1px blueviolet;
-	}
-	.wait-container {
-		display: flex;
-		height: 50svh;
-		height: 50vh;
-		justify-content: center;
-		align-items: center;
-		background-color: white;
-	}
-	.wait-modal, #header .wait-modal{
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		justify-content: center;
-		align-items: center;
-	}
-	.wait-modal p {
-		font-family: Arial, Helvetica, sans-serif;
 	}
 	.modal-container {
 		font-family: 'Roboto', sans-serif;

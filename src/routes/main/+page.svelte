@@ -16,21 +16,19 @@
         sf.play()
     }
 </script>
-<html lang="ts">
-    <div class="title">
-        <h1>MATH</h1>
-        <h2>BINGO</h2>
-    </div>
-    <hr>
-    <div id="btn-div">
-        <p>You are logged in as: {user}</p>
-        <a href="/singleplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Single Player Mode</button></a>
-        <a href="/multiplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Multiplayer Mode</button></a>
-        <a href="/account" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>View Account</button></a>
-        <br><br>
-        <button on:focus={audioEff} on:mouseover={audioEff}>Log out</button>
-    </div>
-</html>
+
+<div class="title">
+    <h1>MATH</h1>
+    <h2>BINGO</h2>
+</div>
+<hr>
+<div id="btn-div">
+    <a href="/singleplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Single Player Mode</button></a>
+    <a href="/multiplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Multiplayer Mode</button></a>
+    <a href="/account" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>View Account</button></a>
+    <br><br>
+    <button on:focus={audioEff} on:mouseover={audioEff}>Log out</button>
+</div>
 
 <style>
     #btn-div{
@@ -47,12 +45,14 @@
         border: 3px solid white;
         border-radius: 15px;
         height: 10vh;
-        width: 25vw;
+        width: 50vw;
         font-size: 2rem;
     }
 
-    p {
-        justify-self: center;
-        font-size: 1.5rem;
-    }
+    @media (max-width: 768px) {
+       button {
+         font-size: 1.5rem;
+         width: 70vw;
+       }
+}
 </style>

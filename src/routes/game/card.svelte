@@ -1,7 +1,7 @@
 <script lang="ts">
 	// @ts-nocheck comment
 	import '../style.css';
-	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status, multiplayer, game_start} from './config';
+	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status} from './config';
 	import { get } from 'svelte/store';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
 	// import lowTime from '../assets/music/time.wav';
@@ -68,18 +68,6 @@
 			clearInterval(interv)
 		}
 	})
-	multiplayer.subscribe(val => {
-		if (val == true){
-			clearInterval(interv)
-		}
-	})
-	game_start.subscribe(val => {
-		if (val == true){
-			let intervs = setInterval(() => {
-				time.update((prev) => prev - 1);
-			}, 1000);
-		}
-	})
 	$: if (countdown == 0) {
 		bonus_hp.set(0)
 		hp.update((prev) => prev - 1);
@@ -139,6 +127,7 @@
 		<slot />
 	</div>
 </div>
+<!----------------------------------------------------------------------------------------->
 <div class="mobile-view">	
 	<div class="question-box">
 		<p style="margin: auto; font-weight:bold">Single Player Mode</p>
@@ -149,7 +138,7 @@
 		<div class="player-stat">
 			<p style="display: flex; align-items:center">Lives:
 			{#each lifeObj as { count }, i}
-			<span><img src="/src/routes/assets/images/heart.png" alt="" /></span>
+			<span><img class="heart" src="/src/routes/assets/images/heart.png" alt="" /></span>
 			{/each}
 			</p>
 			<p style="display: flex; align-items:center">Combo:&nbsp;<span style="font-size: 2rem; font-weight:bold; font-family: Arial">{comboCount}</span>
@@ -159,7 +148,7 @@
 		<hr>
 		<span>Question: &nbsp; {questionString[counter]} = ?</span>
 	</div>	
-	<div class="card">
+	<div class="card {border_warn}">
 		<slot />
 	</div>
 </div>

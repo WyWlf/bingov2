@@ -3,8 +3,10 @@
     import audio from '../assets/music/mixkit-arcade-game-jump-coin-216.wav';
     import audio2 from '../assets/music/mixkit-game-click-1114.wav';
     import { Modal } from '@svelteuidev/core';
+    import { io } from '$lib/webSocketConnection.js';
     import '../style.css'
 
+    Cookies.set('host', 'false')
     let user: any = Cookies.get('username')
     function audioEff(){
         let sf = new Audio(audio);
@@ -23,6 +25,23 @@
         opened = true
         clickEff()
     }
+    let code = ''
+    function joinGame(){
+        io.emit('join', {
+            room: code,
+            player: Cookies.get('username')
+        })
+    }
+    io.on('no-room', ()=> {
+            console.log('Room not found')
+        })
+    io.on('room-found', data => {
+        if (code == data['room']){
+            Cookies.set('multiplayer_session', data['room'])
+            window.location.href = '/game_multiplayer'
+            console.log('found')
+        }
+    })
 </script>
 <html lang="ts">
     <div class="title">
@@ -40,8 +59,8 @@
 </html>
 <Modal centered {opened} on:close={()=> {opened = false}} target='body' title="Join room" overflow="inside"  {closeOnClickOutside} {closeOnEscape}>
     <div class="modal-container">
-        <input type="text" name="" id="">
-        <button>Join</button>
+        <input type="text" name="" id="" bind:value={code}>
+        <button on:click={joinGame}>Join</button>
         <br>
     </div>
 </Modal>
@@ -83,12 +102,18 @@
         border: 3px solid white;
         border-radius: 15px;
         height: 10vh;
-        width: 25vw;
+        width: 50vw;
         font-size: 2rem;
     }
 
     p {
         justify-self: center;
         font-size: 1.5rem;
+    }
+    @media (max-width: 768px) {
+       button {
+         font-size: 1.5rem;
+         width: 70vw;
+       }
     }
 </style>

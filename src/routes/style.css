@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Roboto:wght@900&display=swap');
-
-html {
-    height: 100%;
-    margin: 0px;
+body {
+    margin: 1rem;
 }
 html {
     background-image: 
@@ -10,6 +8,7 @@ html {
       farthest-corner circle at 100% 0% in oklab, 
       oklch(80% .4 222) 0%, oklch(35% .5 313) 100%
     );
+    height: max-content;
 }
 
 button {
@@ -33,7 +32,17 @@ button:hover {
 .title h1, .title h2 {
     font-family: 'Lilita One', cursive;
     -webkit-text-fill-color: white;
-    font-size: 7em;
+    font-size: 7rem;
     display: inline;
     margin: 0.25em;
+}
+@media (max-width: 768px) {
+    .title h1, .title h2 {
+        font-size: 3rem;
+    }
+}
+@media (max-width: 468px) {
+    .title h1, .title h2 {
+        font-size: 3rem;
+    }
 }

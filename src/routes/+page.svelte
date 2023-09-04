@@ -105,6 +105,7 @@
         width: 40%;
         justify-self: center;
         height: 2.5vh;
+        padding: 0.5rem;
     }
     .vertical-footer div div {
         display: grid;
@@ -115,7 +116,7 @@
         border-radius: 10px;
         border: 1px;
         height: 5vh;
-        width: 30%;
+        width: 50%;
         justify-self: center;
     }
     #status{
@@ -132,6 +133,11 @@
         }
         input {
             width: 50%;
+        }
+    }
+    @media (max-width: 768px) {
+        input {
+            width: 80%;
         }
     }
 </style>
