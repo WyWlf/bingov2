@@ -10,17 +10,18 @@ export default function injectSocketIO(server) {
 		socket.on('multiplayer-creation', data => {
 			if (!rooms.includes(data)){
 				rooms.push(data['room'])
-				players.push({room: data['room'], host: data['player'], players: [data['player']], lost: [], started: false, ended: false, winner: ''})
+				players.push({room: data['room'], host: data['player'], players: [data['player']], origin_player: [data['player']], lost: [], started: false, ended: false, winner: ''})
 			}
 		})
 		socket.on('join', data => {
 			if (rooms.includes(data['room'])){
 				let obj = players.find(o => o.room === data['room'])
-				if (!obj['players'].includes(data['player']) && !obj['lost'].includes(data['player'])){
+				if (obj != null && !obj['players'].includes(data['player']) && !obj['lost'].includes(data['player'])){
 					obj['players'].push(data['player'])
+					obj['origin_player'].push(data['player'])
 					socket.broadcast.emit('new-player', obj)
 					socket.emit('room-found', obj)
-				} else if (obj['lost'].includes(data['player'])){
+				} else if (obj != null && obj['lost'].includes(data['player'])){
 					socket.emit('room-found', false)
 				}
 			} else {
@@ -44,15 +45,19 @@ export default function injectSocketIO(server) {
 		})
 		socket.on('reconnect', data => {
 			let obj = players.find(o => o.room === data['game'])
-			if (obj['started'] == true && obj['ended'] == false && obj['players'].includes(data['player'])){
+			if (obj != null && obj['started'] == true && obj['ended'] == false && obj['origin_player'].includes(data['player'])){
 				socket.emit('active', obj)
-			} else if (!obj['players'].includes(data['player'])) {
+			} else if (obj != null && obj['origin_player'].includes(data['player']) && !obj['players'].includes(data['player'])){
+				obj['players'].push(data['player'])
+				socket.broadcast.emit('new-player', obj)
+			}
+			else if (obj != null && !obj['origin_player'].includes(data['player'])) {
 				socket.emit('active', false)
 			}
 		})
 		socket.on('player-kick', data => {
 			let obj = players.find(o => o.room === data['game'])
-			if (obj['players'].includes(data['player'])){
+			if (obj != null && obj['players'].includes(data['player'])){
 				obj['lost'].push(data['player'])
 				let index = obj['players'].indexOf(data['player'])
 				obj['players'].splice(index, 1)
@@ -61,7 +66,7 @@ export default function injectSocketIO(server) {
 		})
 		socket.on('disconnected', data => {
 			let obj = players.find(o => o.room === data['game'])
-			if (obj['players'].includes(data['player'])){
+			if (obj != null && obj['origin_player'].includes(data['player'])){
 				let index = obj['players'].indexOf(data['player'])
 				obj['players'].splice(index, 1)
 				socket.broadcast.emit('player-dc', {

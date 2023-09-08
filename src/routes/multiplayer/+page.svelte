@@ -5,7 +5,7 @@
     import { Modal } from '@svelteuidev/core';
     import { io } from '$lib/webSocketConnection.js';
     import '../style.css'
-
+    Cookies.remove('multiplayer_session')
     Cookies.set('host', 'false')
     let user: any = Cookies.get('username')
     function audioEff(){

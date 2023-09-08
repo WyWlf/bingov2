@@ -196,6 +196,9 @@
 
 		io.on('player-dc', data => {
 			console.log(data)
+			logs = data['new']['players']
+			logs = logs
+			player_count = data['new']['players'].length
 		})
 	});
 
