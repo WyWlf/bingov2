@@ -142,7 +142,8 @@
 	}
 
 	let logs: any = []
-
+	$: joined = 0;
+	$: player_lost = 0;
 	$: player_count = 0;
 	onMount(() => {
 		multiplayer.set(true);
@@ -153,12 +154,12 @@
 			});
 		}
 		io.on('new-player', (data) => {
-				console.log(data)
 				if (Cookies.get('multiplayer_session') == data['room']) {
-					player_count = data['players'].length;
+					joined = data['players'].length
+					player_count = data['origin_player'].length;
+					player_lost = data['lost'].length
 					logs = data['players']
 				}
-				console.log(logs)
 		});
 		io.emit('reconnect', {
 				game: Cookies.get('multiplayer_session'),
@@ -167,6 +168,10 @@
 		io.on('active', data => {
 			if (data['room'] == Cookies.get('multiplayer_session')) {
 				removeModal()
+				console.log(data)
+				joined = data['players'].length
+				player_count = data['origin_player'].length
+				player_lost = data['lost'].length
 			} else if (data == false){
 				Cookies.remove('multiplayer_session')
 				window.location.href = '/multiplayer'
@@ -175,8 +180,11 @@
 		io.emit('gameInfo', Cookies.get('multiplayer_session'))
 		io.on('gameInfoRes', data => {
 			if (Cookies.get('multiplayer_session') == data['room']){
-				player_count = data['players'].length
+				player_count = data['origin_player'].length
+				joined = data['players'].length
+				player_lost = data['lost'].length
 				logs = data['players']
+				Cookies.set('host_name', data['host'])
 			}
 		})
 		io.on('begin', data => {
@@ -189,6 +197,7 @@
 			if (data['room'] == Cookies.get('multiplayer_session') && data['ended'] == true){
 				winner = data['winner']
 				opened = true
+				gamesave(0)
 				clearInterval(time)
 				console.log(winner)
 			}
@@ -198,7 +207,12 @@
 			console.log(data)
 			logs = data['new']['players']
 			logs = logs
-			player_count = data['new']['players'].length
+			joined = data['new']['players'].length
+			player_lost = data['new']['lost'].length
+		})
+		io.on('player-reduced', data => {
+			joined = data['new']['players'].length
+			player_lost = data['new']['lost'].length
 		})
 	});
 
@@ -262,11 +276,57 @@
 		return '' + fval + '' + operations[operator] + '' + lval + '';
 	}
 
+	async function gamesave(condition: number) {
+		let day = new Date()
+		const today = day.toLocaleDateString()
+
+		let match_record = {
+			game: Cookies.get('multiplayer_session'),
+			username: Cookies.get('username'),
+			time: time_finished,
+			streak: highest,
+			correct: get(correct_count),
+			wrong: get(wrong_count),
+			status: condition,
+			mode: 1,
+			host: Cookies.get('host_name'),
+			winner: winner,
+			date: today
+		}
+		const sql = await fetch(
+				'http://192.168.254.104/sv/bingo/src/routes/php/match_save.php',
+				{
+					method: 'POST',
+					body: JSON.stringify(match_record)
+				}
+			);
+			let echo_code: string = await sql.text();
+			console.log(echo_code)
+	}
+
+	async function winSave() {
+		let match_record = {
+			game: Cookies.get('multiplayer_session'),
+			host: Cookies.get('host_name'),
+			winner: winner,
+		}
+		const sql = await fetch(
+				'http://192.168.254.104/sv/bingo/src/routes/php/winner_save.php',
+				{
+					method: 'POST',
+					body: JSON.stringify(match_record)
+				}
+			);
+			let echo_code: string = await sql.text();
+			console.log(echo_code)
+	}
+
 	hp.subscribe((val) => {
 		if (val == 0) {
 			gameEnd = true;
 			opened = true;
 			clearInterval(time);
+			gamesave(0)
 			io.emit('player-kick', {
 				game: Cookies.get('multiplayer_session'),
 				player: Cookies.get('username')
@@ -279,11 +339,13 @@
 		if (value > 0) {
 			opened = true;
 			clearInterval(time);
+			gamesave(1)
 			io.emit('winner', {
 				game: Cookies.get('multiplayer_session'),
 				winner: Cookies.get('username')
 			})
 			winner = Cookies.get('username')
+			winSave()
 		}
 	});
 
@@ -323,7 +385,7 @@
 	</div>
 	<div class="wait-modal">
 		<p>Your game code is: <span>{session}</span></p>
-		<p>Players joined: {player_count}</p>
+		<p>Players joined: {joined}</p>
 		<p style="font-weight: bold;">Waiting for other players to join...</p>
 		<div class="room-logs">
 			{#key logs}
@@ -347,7 +409,7 @@
 			{:else}
 				<div style="display: flex; flex-direction:column; align-items:center; gap: 1rem">
 					<img src="src/routes/assets/images/loader.gif" alt="" style="height: 3rem; width: 3rem">
-					<button>Leave</button>
+					<a href="/multiplayer">Leave</a>
 				</div>
 			{/if}
 		</div>
@@ -358,7 +420,7 @@
 	<div class="game-header">
 		<div>
 			<p>Game code: <span style="font-weight: bold;">{session}</span></p>
-			<p>Players joined: <span style="font-weight: bold;">{player_count}</span></p>
+			<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
 			<p>Mode: <span style="font-weight: bold;">Operations</span></p>
 		</div>
 		<div>
@@ -419,7 +481,7 @@
 				</div>
 			{:else if gameEnd == false && winner != Cookies.get('username')}
 				<div class="modal-container">
-					<span>You've lost</span><br /><br />
+					<span>You have lost!</span><br /><br />
 					<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
 					<br /><br />
 					<hr />
@@ -514,9 +576,10 @@
 		justify-self: center;
 		align-items: center;
 		color: rgb(0, 0, 0);
+		padding: 1rem;
 	}
 
-	.button-group:hover {
+	.button-group button:hover {
 		box-shadow: 0px 0px 15px 1px blueviolet;
 		color: rgb(34, 255, 255);
 	}
@@ -527,10 +590,13 @@
 			display: none;
 		}
 		.button-group {
-			padding: 0;
+			padding: 0.5rem;
 		}
 	}
 	@media (max-width: 468px) {
+		.button-group button {
+			width: 50vw;
+		}
 		.button-group-modal button {
 			width: 30vw;
 		}

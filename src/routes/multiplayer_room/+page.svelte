@@ -4,6 +4,7 @@
     import audio2 from '../assets/music/mixkit-game-click-1114.wav';
     import '../style.css'
     Cookies.set('host', 'false')
+    Cookies.set('host_name', '')
     let user: any = Cookies.get('username')
     function audioEff(){
         let sf = new Audio(audio);
@@ -33,8 +34,8 @@
     <div id="btn-div">
         <p>Create room for multiplayer</p>
         <a href="/game_multiplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={() => {clickEff(); host()}}><button>Operations</button></a>
-        <a href="/#" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Geometry</button></a>
-        <a href="/#" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Fractions</button></a>
+        <a href="/#" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff} class="disabled"><button>Geometry</button></a>
+        <a href="/#" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff} class="disabled"><button>Fractions</button></a>
         <br><br>
         <a href="/multiplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}><button>Back</button></a>
     </div>

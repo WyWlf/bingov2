@@ -1,11 +1,10 @@
 <script lang="ts">
 	// @ts-nocheck comment
 	import '../style.css';
-	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status, multiplayer, game_start} from './config';
-	import { get } from 'svelte/store';
+	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status, game_start} from './config';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
 	import { io } from '$lib/webSocketConnection.js';
-	// import lowTime from '../assets/music/time.wav';
+	import lowTime from '../assets/music/time.wav';
 	export let questionString: Array<any> = [];
 	let counter = 0;
 	trigger.subscribe(val => {
@@ -20,12 +19,6 @@
 		}
 	})
 	$: question = questionString[counter]
-	// $: console.log(question)
- 	// setInterval(()=> {
-	// 	console.log(questionString)
-	// 	console.log(get(max))
-	// }, 5000)
-
 	count.subscribe((value) => {
 		counter = value
 		max.set(questionString.length-1)
@@ -89,12 +82,13 @@
 		soundeff.play()
 	}
 	let border_warn = '';
+	let loweff = new Audio(lowTime)
 	$: if (countdown < 15) {
-		// let soundeff = new Audio(lowTime)
-		// soundeff.volume = 0.3
-		// soundeff.play()
+		loweff.volume = 0.3
+		loweff.play()
 		border_warn = 'active'
 	} else {
+		loweff.volume = 0
 		border_warn = ''
 	}
 </script>
@@ -102,7 +96,7 @@
 <div class="card-container">
 	<div class="question">
 		<div class="question-box">
-			<span>Question: &nbsp; {questionString[counter]} = ?</span>
+			<span>Question: &nbsp; {question} = ?</span>
 		</div>
 		<div>
 			<p>Timer:</p>
@@ -147,16 +141,19 @@
 		</span>
 		<div class="player-stat">
 			<p style="display: flex; align-items:center">Lives:
-			{#each lifeObj as { count }, i}
-			<span><img class="heart" src="/src/routes/assets/images/heart.png" alt="" /></span>
-			{/each}
+			{#key lifeObj}
+				{#each lifeObj as { count }, i}
+					<span><img class="heart" src="/src/routes/assets/images/heart.png" alt="" /></span>
+				{/each}
+			{/key}
 			</p>
 			<p style="display: flex; align-items:center">Combo:&nbsp;<span style="font-size: 2rem; font-weight:bold; font-family: Arial">{comboCount}</span>
 				&nbsp;<span><img src="/src/routes/assets/images/combo.gif" alt="" style="display: {threshold}" /></span>
 			</p>
+			
 		</div>
 		<hr>
-		<span>Question: &nbsp; {questionString[counter]} = ?</span>
+		<span>Question: &nbsp; {question} = ?</span>
 	</div>	
 	<div class="card {border_warn}">
 		<slot />

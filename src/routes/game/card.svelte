@@ -19,19 +19,13 @@
 		}
 	})
 	$: question = questionString[counter]
-	// $: console.log(question)
- 	// setInterval(()=> {
-	// 	console.log(questionString)
-	// 	console.log(get(max))
-	// }, 5000)
-
+	$: evaluator = Math.round(eval(questionString[counter]) * 100) / 100
 	count.subscribe((value) => {
 		counter = value
 		max.set(questionString.length-1)
 	})
-
-	$: current_question.set(Math.round(eval(question) * 100) / 100);
-
+	$: current_question.set(evaluator);
+	// $: console.log(evaluator)
 	let lifeObj = [];
 	hp.subscribe((value) => {
 		lifeObj = [];
@@ -72,7 +66,7 @@
 		bonus_hp.set(0)
 		hp.update((prev) => prev - 1);
 		comboCounter.set(0)
-		count.update(prev => prev + 1)
+		count.update((prev) => prev + 1)
 		threshold = 'none'
 		time.set(60);
 		let soundeff = new Audio(incorrect);
@@ -92,7 +86,7 @@
 <div class="card-container">
 	<div class="question">
 		<div class="question-box">
-			<span>Question: &nbsp; {questionString[counter]} = ?</span>
+			<span>Question: &nbsp; {question} = ?</span>
 		</div>
 		<div>
 			<p>Timer:</p>
@@ -137,9 +131,11 @@
 		</span>
 		<div class="player-stat">
 			<p style="display: flex; align-items:center">Lives:
-			{#each lifeObj as { count }, i}
-			<span><img class="heart" src="/src/routes/assets/images/heart.png" alt="" /></span>
-			{/each}
+				{#key lifeObj}
+					{#each lifeObj as { count }, i}
+						<span><img class="heart" src="/src/routes/assets/images/heart.png" alt="" /></span>
+					{/each}
+				{/key}
 			</p>
 			<p style="display: flex; align-items:center">Combo:&nbsp;<span style="font-size: 2rem; font-weight:bold; font-family: Arial">{comboCount}</span>
 				&nbsp;<span><img src="/src/routes/assets/images/combo.gif" alt="" style="display: {threshold}" /></span>
@@ -291,6 +287,9 @@
 		.question-box p {
 			font-size: 1.2rem;
 			font-family: light;
+		}
+		.question-class {
+			font-size: 1rem;
 		}
     }
 </style>

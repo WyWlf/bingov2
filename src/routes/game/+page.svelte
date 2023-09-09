@@ -10,7 +10,6 @@
 
 	let opened = false;
 	let count = 0;
-	$: console.log(count);
 	let time = setInterval(() => {
 		count += 1;
 	}, 1000);
@@ -160,12 +159,39 @@
 		};
 		return '' + fval + '' + operations[operator] + '' + lval + '';
 	}
+	
+	async function gamesave(condition: number) {
+		let day = new Date()
+		const today = day.toLocaleDateString()
+		
+		let match_record = {
+			game: Cookies.get('game_session'),
+			username: Cookies.get('username'),
+			time: time_finished,
+			streak: highest,
+			correct: get(correct_count),
+			wrong: get(wrong_count),
+			status: condition,
+			date: today
+		}
+		const sql = await fetch(
+				'http://192.168.254.104/sv/bingo/src/routes/php/match_save.php',
+				{
+					method: 'POST',
+					body: JSON.stringify(match_record)
+				}
+			);
+			let echo_code: string = await sql.text();
+			console.log(echo_code)
+	}
 
 	hp.subscribe((val) => {
 		if (val == 0) {
 			gameEnd = true;
 			opened = true;
 			clearInterval(time);
+			gamesave(0);
+			Cookies.remove('game_session')
 		}
 	});
 
@@ -173,6 +199,7 @@
 		if (value > 0) {
 			opened = true;
 			clearInterval(time);
+			gamesave(1);
 		}
 	});
 
@@ -260,6 +287,7 @@
 					<button
 						on:click={() => {
 							window.location.href = '/singleplayer';
+							Cookies.remove('game_session')
 						}}>Return</button
 					>
 				</div>

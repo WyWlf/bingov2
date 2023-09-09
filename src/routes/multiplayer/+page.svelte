@@ -6,6 +6,7 @@
     import { io } from '$lib/webSocketConnection.js';
     import '../style.css'
     Cookies.remove('multiplayer_session')
+    Cookies.remove('host_name')
     Cookies.set('host', 'false')
     let user: any = Cookies.get('username')
     function audioEff(){
