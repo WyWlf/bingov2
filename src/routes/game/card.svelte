@@ -4,6 +4,7 @@
 	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status} from './config';
 	import { get } from 'svelte/store';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
+	import heart from '../assets/images/heart.png'
 	// import lowTime from '../assets/music/time.wav';
 	export let questionString: Array<any> = [];
 	let counter = 0;
@@ -91,15 +92,15 @@
 		<div>
 			<p>Timer:</p>
 			<span
-				><img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" />
-				{countdown}s <img src="/src/routes/assets/images/8bit-hrglass.gif" alt="" /></span
+				><img src="8bit-hrglass.gif" alt="" />
+				{countdown}s <img src="8bit-hrglass.gif" alt="" /></span
 			>
 		</div>
 		<div>
-			<p>Lives:</p>
+			<p>Lives:</p>	
 			{#key lifeObj}
 				{#each lifeObj as { count }, i}
-					<span><img class="heart" src="/src/routes/assets/images/heart.png" alt="" /></span>
+					<span><img class="heart" src="{heart}" alt="" /></span>
 				{/each}
 			{/key}
 		</div>
