@@ -11,18 +11,33 @@ if(!empty($content['username']) && !empty($content['password'])){
     $result = $sth->fetch(PDO::FETCH_ASSOC);
 
     if ($count > 0){
-        $decrpyt_pass = password_verify($content['password'], $result['password']);
-        if ($decrpyt_pass == 1){
-            echo 1;
-            echo $content['username'];
+       // $decrpyt_pass = password_verify($content['password'], $result['password']);
+        if ($result['password'] == $content['password']){
+            echo json_encode(
+                $json = (object) array(
+                'success' => 1,
+                'type' => $result['type']
+            ));
         } else {
-            echo "Wrong Password";
+            echo json_encode(
+                $json = (object) array(
+                'success' => 0,
+                'message' => 'Wrong password'
+            ));
         }
     } else {
-        echo "Account not found";
+        echo json_encode(
+            $json = (object) array(
+            'success' => 0,
+            'message' => 'Account not found'
+        ));
     }
     
 } else {
-    echo "Check your inputs and try again";
+    echo json_encode(
+        $json = (object) array(
+        'success' => 0,
+        'message' => 'Please fill all required fields'
+    ));
 }
 ?>

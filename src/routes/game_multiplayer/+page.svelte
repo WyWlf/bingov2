@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import {
 		win_status,
 		comboCounter,
@@ -16,10 +16,13 @@
 	import { Modal } from '@svelteuidev/core';
 	import { get } from 'svelte/store';
 	import { io } from '$lib/webSocketConnection.js';
+	import {PUBLIC_APIPATH} from '$env/static/public'
+	import QuestionModal from './QuestionModal.svelte';
 
+	let showModal = false;
 	$: winner = ''
 	let host = Cookies.get('host');
-	let session: string = '';
+	let session: any = '';
 	let opened = false;
 	let count = 0;
 	// $: console.log(count);
@@ -90,7 +93,7 @@
 		}
 		onMount(async function game_config_store() {
 			const res = await fetch(
-				'http://192.168.254.104/sv/bingo/src/routes/php/game_config_save.php',
+				PUBLIC_APIPATH+'game_config_save.php',
 				{
 					method: 'POST',
 					body: JSON.stringify(game_config)
@@ -294,7 +297,7 @@
 			date: today
 		}
 		const sql = await fetch(
-				'http://192.168.254.104/sv/bingo/src/routes/php/match_save.php',
+			PUBLIC_APIPATH+'match_save.php',
 				{
 					method: 'POST',
 					body: JSON.stringify(match_record)
@@ -311,7 +314,7 @@
 			winner: winner,
 		}
 		const sql = await fetch(
-				'http://192.168.254.104/sv/bingo/src/routes/php/winner_save.php',
+			PUBLIC_APIPATH+'winner_save.php',
 				{
 					method: 'POST',
 					body: JSON.stringify(match_record)
@@ -376,6 +379,24 @@
 		Cookies.remove('multiplayer_session');
 		window.location.href = '/multiplayer';
 	}
+	let question_form: any = []
+	async function getConfig(){
+		const res = await fetch(
+				PUBLIC_APIPATH+'get_config.php',
+				{
+					method: 'POST',
+					body: JSON.stringify({game: Cookies.get('multiplayer_session')})
+				}
+		)
+		let response = await res.json()
+		let iterations = JSON.parse(response)
+		for (let x = 0; x < 25; x++){
+			question_form = [...question_form, iterations[x]]
+		}
+	}
+	$: if (showModal == false){
+		question_form = []
+	}
 </script>
 
 <div class="wait-container" style="display: {multiplayer_header};">
@@ -384,9 +405,21 @@
 		<h2>BINGO</h2>
 	</div>
 	<div class="wait-modal">
-		<p>Your game code is: <span>{session}</span></p>
-		<p>Players joined: {joined}</p>
-		<p style="font-weight: bold;">Waiting for other players to join...</p>
+		<p style="font-weight: bold;">Players joined: {joined}</p>
+		<p>Your game code is: <span style="text-decoration: underline;">{session}</span></p>
+		<small style="color: brown;">Share this code to invite other players.</small>
+		<p>Spectator mode: <input type="checkbox" checked name="spectate" id="spectate"></p>
+		<small style="color: brown;">If spectator mode is activated</small>
+		<br>
+		<small style="color: brown;">
+			The host would be unable to play and can only spectate the progress of the players.
+		</small>
+		<p>Customize questions: <button class="unset" on:click={()=> {
+			showModal = true; getConfig()
+		}}>Open Questions</button></p>
+		<small style="color: brown;">
+		You can customize your own questions by modifying the auto-generated configuration.
+		</small>
 		<div class="room-logs">
 			{#key logs}
 				{#each logs as players}
@@ -394,6 +427,7 @@
 				{/each}
 			{/key}
 		</div>
+		<p style="font-weight: bold;">Waiting for other players to join...</p>
 		<div class="button-group-modal" style="display:flex; gap: 2rem">
 			{#if host == 'true'}
 			<button
@@ -415,7 +449,55 @@
 		</div>
 	</div>
 </div>
-
+<QuestionModal bind:showModal on:close={()=> {console.log('hi')}}>
+<div class="ModalQ" slot="header">
+	<h1>
+		Customize questions:
+	</h1>
+</div>
+<div class="question-list">
+	{#each question_form as {firstVal, secondVal, operator}, i}
+	<div class="modal-container" id="id{i}">
+		<p>Question {i+1}:</p>
+		<div class="question-flex">
+			<p>First value:</p>
+			<input type="text" value="{firstVal}">
+			<p>Operator: </p>
+			<select name="" id="">
+				{#if operator == 'addition'}
+				<option selected value="additon">Addition</option>
+				<option value="subtraction">Subtraction</option>
+				<option value="multiplication">Multiplication</option>
+				<option value="division">Division</option>
+				{:else if operator == 'subtraction'}
+				<option value="additon">Addition</option>
+				<option selected value="subtraction">Subtraction</option>
+				<option value="multiplication">Multiplication</option>
+				<option value="division">Division</option>
+				{:else if operator == 'multiplication'}
+				<option value="additon">Addition</option>
+				<option value="subtraction">Subtraction</option>
+				<option selected value="multiplication">Multiplication</option>
+				<option value="division">Division</option>
+				{:else if operator == 'division'}
+				<option value="additon">Addition</option>
+				<option value="subtraction">Subtraction</option>
+				<option value="multiplication">Multiplication</option>
+				<option selected value="division">Division</option>
+				{/if}
+			</select>
+			<p>Second value:</p>
+			<input type="text" value="{secondVal}">
+			</div>
+		</div>
+	{/each}
+	<span></span>
+	<span></span>
+	<span></span>
+	<span></span>
+	<button class="save-changes">Save changes</button>
+</div>
+</QuestionModal>
 <div id="header" style="display: {gameBody};">
 	<div class="game-header">
 		<div>
@@ -498,6 +580,38 @@
 	</div>
 
 <style>
+	.save-changes:hover {
+		box-shadow: 0px 0px 10px 5px skyblue;
+		color: white;
+	}
+	.modal-container {
+		border: 1px solid rgb(0, 0, 0);
+		padding: 1rem
+	}
+	.question-flex {
+		display: grid;
+		grid-template-columns: 1fr;
+	}
+	.question-list {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+		border: 1px solid black;
+		padding: 2rem;
+		gap: 2.5rem;
+	}
+	.ModalQ > h1{
+		font-size: 2rem;
+	}
+	.unset {
+		all: unset;
+		border: 1px solid skyblue;
+		padding: 0.5rem;
+		border-radius: 0.25rem;
+		background-color: skyblue;
+	}
+	.unset:hover {
+		box-shadow: 0px 0px 10px skyblue;
+	}
 	.room-logs {
 		display: flex;
 		flex-direction: column;

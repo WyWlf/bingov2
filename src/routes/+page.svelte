@@ -1,58 +1,43 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-    import Cookies from 'js-cookie';
+    import Signin from './signin.svelte'
+    import Register from './register.svelte';
     import  './style.css'
-    
-
-    let userForm = {}
-    let status : any = ''
-    let user : any = Cookies.get('username')
-    console.log(user)
-    async function loginFunc(){
-        try {
-            let username = (document.getElementById('username') as HTMLInputElement).value
-            let password = (document.getElementById('password') as HTMLInputElement).value
-            userForm = {
-                username: username,
-                password: password
-            }
-            const res = await fetch('http://192.168.254.104/sv/bingo/src/routes/php/login_function.php', {
-                method: 'POST',
-                body:  JSON.stringify(userForm)                
-            })
-            status = await res.text()
-            if (status.substring(1, 0) == 1){
-                Cookies.set('username', status.substring(1), {expires: 7})
-                goto('/main')
-            }
-        }catch (error){
-            console.log(error)
+    let signTab = 'active'
+    let registerTab = ''
+    let activeBool = true
+    function activeTab(element: string){
+        if (element === 'signin'){
+            signTab = 'active'
+            registerTab = ''
+            activeBool = true
+        } else {
+            signTab = ''
+            registerTab = 'active'
+            activeBool = false
         }
     }
+
 </script>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="vertical-box">
         <div class="vertical-header">
-            <p>SIGN IN</p>
+            <p>BINGO MATH</p>
         </div>
-        <div class="vertical-footer">
-            <div>
-                <p>USER LOGIN</p>
-                <br>
-                <div>
-                    <label for="username">Username</label>
-                    <br>
-                    <input type="text" name="" id="username">
+        <div class="welcome-page">
+            <div class="selector">
+                <div class="selector-content {signTab}" id="signin" role="button" aria-pressed="true" tabindex="0" on:click={() => {activeTab('signin')}}>
+                        Sign-in
                 </div>
-                <br>
-                <div>
-                    <label for="">Password</label>
-                    <br>
-                    <input type="password" id="password">
+                <div class="selector-content {registerTab}" id="register" role="button" aria-pressed="false" tabindex="0" on:click={() => {activeTab('register')}}> 
+                        Register Account
                 </div>
-                <div>
-                    <p id="status">{status}</p>
-                    <button on:click={loginFunc}>Log-in</button>
-                </div>
+            </div>
+            <div class="content">
+                {#if activeBool == true}
+                    <Signin />
+                {:else if activeBool == false}
+                    <Register />
+                {/if}
             </div>
         </div>
 </div>
@@ -74,70 +59,65 @@
         margin-top: 7vh;
     }
     .vertical-header p{
-        font-size: 2em;
+        font-size: 4rem;
         font-family: 'Lilita One', cursive;
         text-align: center;
     }
-    .vertical-footer {
-        box-sizing: border-box;
+
+    .welcome-page {
+        border: 5px solid skyblue;
         background-color: transparent;
-        align-self: center;
+        width: 90%;
+        height: 100%;
+        margin: auto;
+        margin-bottom: 2rem;
+        box-sizing: border-box;
+    }
+    .selector {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        height: 10%;
+        background-color: rgb(255, 255, 255);
+        justify-items: center;
+        align-items: center;
+    }
+    .selector-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         height: 100%;
         width: 100%;
-        border-bottom-left-radius: 13px;
-        border-bottom-right-radius: 13px;
+        border: 1px solid skyblue;
+        box-sizing: border-box;
     }
-    .vertical-footer div {
-        margin: 1rem;
+    .selector-content:nth-child(1) {
+        border-right: 0;
     }
-    .vertical-footer p, label {
-        text-align: center;
+    .selector-content:hover {
+        background-color: rgb(226, 226, 226);
     }
-    .vertical-footer p:nth-child(1), .vertical-footer label {
-        font-size: 1.5rem;
-        font-family: sans-serif;
+    .content {
+        height: 90%;
+        background-color: white;
+        box-sizing: border-box;
     }
-    input {
-        font-size: 2rem;
-        height: 100%;
-        border-radius: 10px;
-        border: 1px;
-        width: 40%;
-        justify-self: center;
-        height: 2.5vh;
-        padding: 0.5rem;
-    }
-    .vertical-footer div div {
-        display: grid;
-    }
-    button {
-        color: rgb(39, 39, 39);
-        margin-top: 5vh;
-        border-radius: 10px;
-        border: 1px;
-        height: 5vh;
-        width: 50%;
-        justify-self: center;
-    }
-    #status{
-        color:rgb(190, 202, 209);
-        background-color: rgb(59, 54, 54);
-        width: fit-content;
-        justify-self: center;
-        border-radius: 13px;
-        padding: 5px;
+    .active {
+        background-color: aliceblue;
     }
     @media (max-width: 1368px) {
         .vertical-box {
             width: 80%;
         }
-        input {
-            width: 50%;
-        }
     }
-    @media (max-width: 768px) {
-        input {
-            width: 80%;
+    @media (max-width: 468px) {
+        .vertical-box {
+            width: 100%;
+        }
+        .vertical-header p {
+            font-size: 2rem;
+        }
+        .selector-content {
+            font-size: 1rem;
         }
     }
 </style>
