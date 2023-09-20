@@ -10,6 +10,7 @@
 <dialog
 	bind:this={dialog}
 	on:close={() => (showModal = false)}
+	on:click|self={() => dialog.close()}
 	
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -19,20 +20,29 @@
 		<slot />
 		<!-- svelte-ignore a11y-autofocus -->
 	</div>
-	<button style="float: right;" autofocus on:click={() => dialog.close()}>Close window</button>
+	<button style="float: right;" autofocus on:click={() => dialog.close()}>Close</button>
 </dialog>
 
 <style>
 	button {
 		all:unset;
-		border: 1px solid skyblue;
+		pointer-events: all;
+		border: 3px solid white;
 		padding: 0.5rem;
-		border-radius: 0.5rem;
-		background-color: skyblue;
+		border-radius: 0.7rem;
+		background: rgb(202, 35, 35);
 		margin: 2rem;
+		margin-top: 0;
+		color: white;
+		font-size: 0.8rem;
+		width: 9vw;
+		height: 2.4vh;
+		font-family: Arial, Helvetica, sans-serif;
+		text-align: center;
 	}
 	button:hover {
-		box-shadow: 0px 0px 10px skyblue;
+		box-shadow: 0px 0px 15px 5px red;
+		transition: 0.5s;
 	}
 	dialog {
 		max-width: max-content;

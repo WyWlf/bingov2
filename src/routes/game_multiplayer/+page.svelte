@@ -13,21 +13,36 @@
 	import Cookies from 'js-cookie';
 	import Card from './card.svelte';
 	import Span from './span.svelte';
+	import Spectator from './spectator.svelte';
 	import { Modal } from '@svelteuidev/core';
 	import { get } from 'svelte/store';
 	import { io } from '$lib/webSocketConnection.js';
-	import {PUBLIC_APIPATH} from '$env/static/public'
+	import { PUBLIC_APIPATH } from '$env/static/public';
 	import QuestionModal from './QuestionModal.svelte';
+	import { formula , beaker } from 'svelte-formula';
 
+	let spectator = false
 	let showModal = false;
-	$: winner = ''
+	$: winner = '';
 	let host = Cookies.get('host');
 	let session: any = '';
 	let opened = false;
 	let count = 0;
 	// $: console.log(count);
-	let time: any
+	let time: any;
 
+    const {form, submitValues, formValidity} = formula();
+	const formGroup = beaker();
+	const handleSubmit = async () => {
+		const newQuestionForm = formGroup.formValues
+		const patchForm = await fetch(PUBLIC_APIPATH+'config_update.php', {
+			method: 'POST',
+			body: JSON.stringify({
+				main: get(newQuestionForm),
+				game: Cookies.get('multiplayer_session')
+			})
+		})
+	}
 	localStorage['token'] = 0;
 	let url = '';
 	let game_config: any = {};
@@ -92,13 +107,10 @@
 			}
 		}
 		onMount(async function game_config_store() {
-			const res = await fetch(
-				PUBLIC_APIPATH+'game_config_save.php',
-				{
-					method: 'POST',
-					body: JSON.stringify(game_config)
-				}
-			);
+			const res = await fetch(PUBLIC_APIPATH + 'game_config_save.php', {
+				method: 'POST',
+				body: JSON.stringify(game_config)
+			});
 			let echo_code: string = await res.text();
 			if (echo_code == '1') {
 				console.log('loaded successfully');
@@ -135,16 +147,16 @@
 	function removeModal() {
 		gameBody = '';
 		multiplayer_header = 'none';
-		game_start.set(true)
-		console.log(get(game_start))
+		game_start.set(true);
+		// console.log(get(game_start));
 	}
-	function gameStart(){
-		io.emit('game-start', Cookies.get('multiplayer_session'))
-		game_start.set(true)
-		removeModal()
+	function gameStart() {
+		io.emit('game-start', Cookies.get('multiplayer_session'));
+		game_start.set(true);
+		removeModal();
 	}
 
-	let logs: any = []
+	let logs: any = [];
 	$: joined = 0;
 	$: player_lost = 0;
 	$: player_count = 0;
@@ -157,66 +169,65 @@
 			});
 		}
 		io.on('new-player', (data) => {
-				if (Cookies.get('multiplayer_session') == data['room']) {
-					joined = data['players'].length
-					player_count = data['origin_player'].length;
-					player_lost = data['lost'].length
-					logs = data['players']
-				}
+			if (Cookies.get('multiplayer_session') == data['room']) {
+				joined = data['players'].length;
+				player_count = data['origin_player'].length;
+				player_lost = data['lost'].length;
+				logs = data['players'];
+			}
 		});
 		io.emit('reconnect', {
-				game: Cookies.get('multiplayer_session'),
-				player: Cookies.get('username')
-			});
-		io.on('active', data => {
+			game: Cookies.get('multiplayer_session'),
+			player: Cookies.get('username')
+		});
+		io.on('active', (data) => {
 			if (data['room'] == Cookies.get('multiplayer_session')) {
-				removeModal()
-				console.log(data)
-				joined = data['players'].length
-				player_count = data['origin_player'].length
-				player_lost = data['lost'].length
-			} else if (data == false){
-				Cookies.remove('multiplayer_session')
-				window.location.href = '/multiplayer'
+				removeModal();
+				// console.log(data);
+				joined = data['players'].length;
+				player_count = data['origin_player'].length;
+				player_lost = data['lost'].length;
+			} else if (data == false) {
+				Cookies.remove('multiplayer_session');
+				window.location.href = '/multiplayer';
 			}
-		})
-		io.emit('gameInfo', Cookies.get('multiplayer_session'))
-		io.on('gameInfoRes', data => {
-			if (Cookies.get('multiplayer_session') == data['room']){
-				player_count = data['origin_player'].length
-				joined = data['players'].length
-				player_lost = data['lost'].length
-				logs = data['players']
-				Cookies.set('host_name', data['host'])
+		});
+		io.emit('gameInfo', Cookies.get('multiplayer_session'));
+		io.on('gameInfoRes', (data) => {
+			if (Cookies.get('multiplayer_session') == data['room']) {
+				player_count = data['origin_player'].length;
+				joined = data['players'].length;
+				player_lost = data['lost'].length;
+				logs = data['players'];
+				Cookies.set('host_name', data['host']);
 			}
-		})
-		io.on('begin', data => {
-			if (data['room'] == Cookies.get('multiplayer_session') && data['started'] == true){
-				removeModal()
+		});
+		io.on('begin', (data) => {
+			if (data['room'] == Cookies.get('multiplayer_session') && data['started'] == true) {
+				removeModal();
 			}
-		
-		})
-		io.on('chicken-dinner', data => {
-			if (data['room'] == Cookies.get('multiplayer_session') && data['ended'] == true){
-				winner = data['winner']
-				opened = true
-				gamesave(0)
-				clearInterval(time)
-				console.log(winner)
+		});
+		io.on('chicken-dinner', (data) => {
+			if (data['room'] == Cookies.get('multiplayer_session') && data['ended'] == true) {
+				winner = data['winner'];
+				opened = true;
+				gamesave(0);
+				clearInterval(time);
+				console.log(winner);
 			}
-		})
+		});
 
-		io.on('player-dc', data => {
-			console.log(data)
-			logs = data['new']['players']
-			logs = logs
-			joined = data['new']['players'].length
-			player_lost = data['new']['lost'].length
-		})
-		io.on('player-reduced', data => {
-			joined = data['new']['players'].length
-			player_lost = data['new']['lost'].length
-		})
+		io.on('player-dc', (data) => {
+			console.log(data);
+			logs = data['new']['players'];
+			logs = logs;
+			joined = data['new']['players'].length;
+			player_lost = data['new']['lost'].length;
+		});
+		io.on('player-reduced', (data) => {
+			joined = data['new']['players'].length;
+			player_lost = data['new']['lost'].length;
+		});
 	});
 
 	function PromiseArray() {
@@ -280,8 +291,8 @@
 	}
 
 	async function gamesave(condition: number) {
-		let day = new Date()
-		const today = day.toLocaleDateString()
+		let day = new Date();
+		const today = day.toLocaleDateString();
 
 		let match_record = {
 			game: Cookies.get('multiplayer_session'),
@@ -295,33 +306,27 @@
 			host: Cookies.get('host_name'),
 			winner: winner,
 			date: today
-		}
-		const sql = await fetch(
-			PUBLIC_APIPATH+'match_save.php',
-				{
-					method: 'POST',
-					body: JSON.stringify(match_record)
-				}
-			);
-			let echo_code: string = await sql.text();
-			console.log(echo_code)
+		};
+		const sql = await fetch(PUBLIC_APIPATH + 'match_save.php', {
+			method: 'POST',
+			body: JSON.stringify(match_record)
+		});
+		let echo_code: string = await sql.text();
+		console.log(echo_code);
 	}
 
 	async function winSave() {
 		let match_record = {
 			game: Cookies.get('multiplayer_session'),
 			host: Cookies.get('host_name'),
-			winner: winner,
-		}
-		const sql = await fetch(
-			PUBLIC_APIPATH+'winner_save.php',
-				{
-					method: 'POST',
-					body: JSON.stringify(match_record)
-				}
-			);
-			let echo_code: string = await sql.text();
-			console.log(echo_code)
+			winner: winner
+		};
+		const sql = await fetch(PUBLIC_APIPATH + 'winner_save.php', {
+			method: 'POST',
+			body: JSON.stringify(match_record)
+		});
+		let echo_code: string = await sql.text();
+		console.log(echo_code);
 	}
 
 	hp.subscribe((val) => {
@@ -329,11 +334,11 @@
 			gameEnd = true;
 			opened = true;
 			clearInterval(time);
-			gamesave(0)
+			gamesave(0);
 			io.emit('player-kick', {
 				game: Cookies.get('multiplayer_session'),
 				player: Cookies.get('username')
-			})
+			});
 			Cookies.remove('multiplayer_session');
 		}
 	});
@@ -342,13 +347,14 @@
 		if (value > 0) {
 			opened = true;
 			clearInterval(time);
-			gamesave(1)
+			gamesave(1);
 			io.emit('winner', {
 				game: Cookies.get('multiplayer_session'),
 				winner: Cookies.get('username')
-			})
-			winner = Cookies.get('username')
-			winSave()
+			});
+			//@ts-ignore
+			winner = Cookies.get('username');
+			winSave();
 		}
 	});
 
@@ -372,30 +378,27 @@
 		io.emit('disconnected', {
 			game: Cookies.get('multiplayer_session'),
 			player: Cookies.get('username')
-		})
+		});
 	});
 
 	function returnMenu() {
 		Cookies.remove('multiplayer_session');
 		window.location.href = '/multiplayer';
 	}
-	let question_form: any = []
-	async function getConfig(){
-		const res = await fetch(
-				PUBLIC_APIPATH+'get_config.php',
-				{
-					method: 'POST',
-					body: JSON.stringify({game: Cookies.get('multiplayer_session')})
-				}
-		)
-		let response = await res.json()
-		let iterations = JSON.parse(response)
-		for (let x = 0; x < 25; x++){
-			question_form = [...question_form, iterations[x]]
+	let question_form: any = [];
+	async function getConfig() {
+		const res = await fetch(PUBLIC_APIPATH + 'get_config.php', {
+			method: 'POST',
+			body: JSON.stringify({ game: Cookies.get('multiplayer_session') })
+		});
+		let response = await res.json();
+		let iterations = JSON.parse(response);
+		for (let x = 0; x < 25; x++) {
+			question_form = [...question_form, iterations[x]];
 		}
 	}
-	$: if (showModal == false){
-		question_form = []
+	$: if (showModal == false) {
+		question_form = [];
 	}
 </script>
 
@@ -408,95 +411,106 @@
 		<p style="font-weight: bold;">Players joined: {joined}</p>
 		<p>Your game code is: <span style="text-decoration: underline;">{session}</span></p>
 		<small style="color: brown;">Share this code to invite other players.</small>
-		<p>Spectator mode: <input type="checkbox" checked name="spectate" id="spectate"></p>
+		<p>Spectator mode: <input type="checkbox" bind:checked={spectator} name="spectate" id="spectate" /></p>
 		<small style="color: brown;">If spectator mode is activated</small>
-		<br>
+		<br />
 		<small style="color: brown;">
 			The host would be unable to play and can only spectate the progress of the players.
 		</small>
-		<p>Customize questions: <button class="unset" on:click={()=> {
-			showModal = true; getConfig()
-		}}>Open Questions</button></p>
+		<p>
+			Customize questions: <button
+				class="unset"
+				on:click={() => {
+					showModal = true;
+					getConfig();
+				}}>Open Questions</button
+			>
+		</p>
 		<small style="color: brown;">
-		You can customize your own questions by modifying the auto-generated configuration.
+			You can customize your own questions by modifying the auto-generated questions.
 		</small>
 		<div class="room-logs">
 			{#key logs}
 				{#each logs as players}
-					<span>User <span style="font-weight: bolder; color: blue">{players}</span> has joined the game</span>
+					<span
+						>User <span style="font-weight: bolder; color: blue">{players}</span> has joined the game</span
+					>
 				{/each}
 			{/key}
 		</div>
 		<p style="font-weight: bold;">Waiting for other players to join...</p>
 		<div class="button-group-modal" style="display:flex; gap: 2rem">
 			{#if host == 'true'}
-			<button
-				on:click={() => {
-					gameStart()
-				}}>Start Game</button
-			>
-			<button 
-				on:click={()=> {
-					window.location.href = '/multiplayer_room'
-				}}
-			>Cancel</button>
+				<button
+					on:click={() => {
+						gameStart();
+					}}>Start Game</button
+				>
+				<button
+					on:click={() => {
+						window.location.href = '/multiplayer_room';
+					}}>Cancel</button
+				>
 			{:else}
 				<div style="display: flex; flex-direction:column; align-items:center; gap: 1rem">
-					<img src="src/routes/assets/images/loader.gif" alt="" style="height: 3rem; width: 3rem">
+					<img src="src/routes/assets/images/loader.gif" alt="" style="height: 3rem; width: 3rem" />
 					<a href="/multiplayer">Leave</a>
 				</div>
 			{/if}
 		</div>
 	</div>
 </div>
-<QuestionModal bind:showModal on:close={()=> {console.log('hi')}}>
-<div class="ModalQ" slot="header">
-	<h1>
-		Customize questions:
-	</h1>
-</div>
-<div class="question-list">
-	{#each question_form as {firstVal, secondVal, operator}, i}
-	<div class="modal-container" id="id{i}">
-		<p>Question {i+1}:</p>
-		<div class="question-flex">
-			<p>First value:</p>
-			<input type="text" value="{firstVal}">
-			<p>Operator: </p>
-			<select name="" id="">
-				{#if operator == 'addition'}
-				<option selected value="additon">Addition</option>
-				<option value="subtraction">Subtraction</option>
-				<option value="multiplication">Multiplication</option>
-				<option value="division">Division</option>
-				{:else if operator == 'subtraction'}
-				<option value="additon">Addition</option>
-				<option selected value="subtraction">Subtraction</option>
-				<option value="multiplication">Multiplication</option>
-				<option value="division">Division</option>
-				{:else if operator == 'multiplication'}
-				<option value="additon">Addition</option>
-				<option value="subtraction">Subtraction</option>
-				<option selected value="multiplication">Multiplication</option>
-				<option value="division">Division</option>
-				{:else if operator == 'division'}
-				<option value="additon">Addition</option>
-				<option value="subtraction">Subtraction</option>
-				<option value="multiplication">Multiplication</option>
-				<option selected value="division">Division</option>
-				{/if}
-			</select>
-			<p>Second value:</p>
-			<input type="text" value="{secondVal}">
-			</div>
+<QuestionModal
+	bind:showModal
+	on:close={() => {
+		console.log('hi');
+	}}
+>
+	<div class="ModalQ" slot="header">
+		<h1>Customize questions:</h1>
+	</div>
+	<form use:form on:submit|preventDefault={handleSubmit}>
+		<div class="question-list" use:formGroup.group>
+			{#each question_form as { firstVal, secondVal, operator }, i}
+				<div class="modal-container">
+					<p>Question {i + 1}:</p>
+					<div class="question-flex">
+						<p>First value:</p>
+						<input type="text" bind:value={firstVal} name="firstVal{i}" required/>
+						<p>Operation:</p>
+						<select name="operation{i}">
+							{#if operator == 'addition'}
+								<option selected value="addition">Addition</option>
+								<option value="subtraction">Subtraction</option>
+								<option value="multiplication">Multiplication</option>
+								<option value="division">Division</option>
+							{:else if operator == 'subtraction'}
+								<option value="addition">Addition</option>
+								<option selected value="subtraction">Subtraction</option>
+								<option value="multiplication">Multiplication</option>
+								<option value="division">Division</option>
+							{:else if operator == 'multiplication'}
+								<option value="addition">Addition</option>
+								<option value="subtraction">Subtraction</option>
+								<option selected value="multiplication">Multiplication</option>
+								<option value="division">Division</option>
+							{:else if operator == 'division'}
+								<option value="addition">Addition</option>
+								<option value="subtraction">Subtraction</option>
+								<option value="multiplication">Multiplication</option>
+								<option selected value="division">Division</option>
+							{/if}
+						</select>
+						<p>Second value:</p>
+						<input type="text" required name="secondVal{i}" bind:value={secondVal} />
+					</div>
+				</div>
+			{/each}
 		</div>
-	{/each}
-	<span></span>
-	<span></span>
-	<span></span>
-	<span></span>
-	<button class="save-changes">Save changes</button>
-</div>
+		<div class="button-container">
+			<button class="save-changes" disabled={!$formValidity}>Save changes</button>
+		</div>
+	</form>
 </QuestionModal>
 <div id="header" style="display: {gameBody};">
 	<div class="game-header">
@@ -505,88 +519,100 @@
 			<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
 			<p>Mode: <span style="font-weight: bold;">Operations</span></p>
 		</div>
-		<div>
-			
-		</div>
+		<div />
 	</div>
 </div>
 
 <hr style="display: {gameBody};" />
-	<div style="display: {gameBody};">
-		<Card {questionString}>
-			{#each answers as a, i}
-				<Span {a} {i} />
-			{/each}
-		</Card>
-		<Modal
-			centered
-			{opened}
-			target="body"
-			on:close={returnMenu}
-			title="Game ended"
-			overflow="inside"
-			{closeOnClickOutside}
-			{closeOnEscape}
-		>
-			{#if gameEnd == false && winner == Cookies.get('username')}
-				<div class="modal-container">
-					<span>🎉You have won!🎉</span><br /><br />
-					<small>Game has been recorded to your match history.</small>
-					<br /><br />
-					<hr />
-					<span>Game Stats</span>
-					<br /><br />
-					<div class="game-stat">
-						<p>Time finished</p>
-						<p>: {time_finished}</p>
-						<p>Highest answer streak</p>
-						<p>: {highest}</p>
-						<p>Correct answers</p>
-						<p>: {get(correct_count)}</p>
-						<p>Wrong answers</p>
-						<p>: {get(wrong_count)}</p>
-					</div>
+{#if spectator == 'false'}
+<div style="display: {gameBody};">
+	<Card {questionString}>
+		{#each answers as a, i}
+			<Span {a} {i} />
+		{/each}
+	</Card>
+	<Modal
+		centered
+		{opened}
+		target="body"
+		on:close={returnMenu}
+		title="Game ended"
+		overflow="inside"
+		{closeOnClickOutside}
+		{closeOnEscape}
+	>
+		{#if gameEnd == false && winner == Cookies.get('username')}
+			<div class="modal-container">
+				<span>🎉You have won!🎉</span><br /><br />
+				<small>Game has been recorded to your match history.</small>
+				<br /><br />
+				<hr />
+				<span>Game Stats</span>
+				<br /><br />
+				<div class="game-stat">
+					<p>Time finished</p>
+					<p>: {time_finished}</p>
+					<p>Highest answer streak</p>
+					<p>: {highest}</p>
+					<p>Correct answers</p>
+					<p>: {get(correct_count)}</p>
+					<p>Wrong answers</p>
+					<p>: {get(wrong_count)}</p>
 				</div>
-			{:else if gameEnd == true}
-				<div class="modal-container">
-					<span>You've ran out of HP!</span><br /><br />
-					<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
-					<br /><br />
-					<hr />
-					<div class="button-group" style="justify-content: center;">
-						<button
-							on:click={() => {
-								window.location.href = '/multiplayer';
-							}}>Return</button
-						>
-					</div>
+			</div>
+		{:else if gameEnd == true}
+			<div class="modal-container">
+				<span>You've ran out of HP!</span><br /><br />
+				<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
+				<br /><br />
+				<hr />
+				<div class="button-group" style="justify-content: center;">
+					<button
+						on:click={() => {
+							window.location.href = '/multiplayer';
+						}}>Return</button
+					>
 				</div>
-			{:else if gameEnd == false && winner != Cookies.get('username')}
-				<div class="modal-container">
-					<span>You have lost!</span><br /><br />
-					<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
-					<br /><br />
-					<hr />
-					<div class="button-group" style="justify-content: center;">
-						<button
-							on:click={() => {
-								window.location.href = '/multiplayer';
-							}}>Return</button
-						>
-					</div>
+			</div>
+		{:else if gameEnd == false && winner != Cookies.get('username')}
+			<div class="modal-container">
+				<span>You have lost!</span><br /><br />
+				<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
+				<br /><br />
+				<hr />
+				<div class="button-group" style="justify-content: center;">
+					<button
+						on:click={() => {
+							window.location.href = '/multiplayer';
+						}}>Return</button
+					>
 				</div>
-			{/if}
-		</Modal>
-	</div>
-
+			</div>
+		{/if}
+	</Modal>
+</div>
+{:else if spectator == 'true'}
+	<Spectator />
+{/if}
 <style>
+	.button-container {
+		display: flex;
+		justify-content: flex-end;
+		padding: 1rem;
+	}
+	.save-changes {
+		color: white;
+		font-family: Arial, Helvetica, sans-serif;
+		font-weight: light;
+		justify-self: center;
+	}
 	.save-changes:hover {
 		box-shadow: 0px 0px 10px 5px skyblue;
 		color: white;
 	}
 	.modal-container {
 		border: 1px solid rgb(0, 0, 0);
-		padding: 1rem
+		padding: 1rem;
 	}
 	.question-flex {
 		display: grid;
@@ -599,7 +625,7 @@
 		padding: 2rem;
 		gap: 2.5rem;
 	}
-	.ModalQ > h1{
+	.ModalQ > h1 {
 		font-size: 2rem;
 	}
 	.unset {
@@ -626,7 +652,8 @@
 		border-radius: 1rem;
 		overflow-y: auto;
 	}
-	h1, h2 {
+	h1,
+	h2 {
 		font-family: 'Lilita One', cursive;
 		-webkit-text-fill-color: rgb(20, 106, 177);
 		font-size: 7rem;
@@ -658,8 +685,7 @@
 		align-items: center;
 		background-color: white;
 	}
-	.wait-container > .wait-modal
-	{
+	.wait-container > .wait-modal {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -714,7 +740,8 @@
 		.button-group-modal button {
 			width: 30vw;
 		}
-		h1, h2 {
+		h1,
+		h2 {
 			font-size: 2rem;
 		}
 		.room-logs {
