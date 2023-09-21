@@ -9,6 +9,7 @@
     Cookies.remove('host_name')
     Cookies.set('host', 'false')
     let user: any = Cookies.get('username')
+    $: message = ''
     function audioEff(){
         let sf = new Audio(audio);
         sf.volume = 0.3
@@ -34,16 +35,16 @@
         })
     }
     io.on('no-room', ()=> {
-            console.log('Room not found')
+            message = 'Room not found'
         })
     io.on('room-found', data => {
         if (code == data['room'] && data != false){
             Cookies.set('multiplayer_session', data['room'])
             window.location.href = '/game_multiplayer'
-            console.log('found')
+            message = 'Room found'
         } else if (data == false){
             Cookies.remove('mutiplayer_session')
-            console.log('cannot rejoin')
+            message = 'Cannot reconnect to this match'
         }
     })
 </script>
@@ -64,6 +65,7 @@
 <Modal centered {opened} on:close={()=> {opened = false}} target='body' title="Join room" overflow="inside"  {closeOnClickOutside} {closeOnEscape}>
     <div class="modal-container">
         <input type="text" name="" id="" bind:value={code}>
+        <span style="color: red">{message}</span>
         <button on:click={joinGame}>Join</button>
         <br>
     </div>

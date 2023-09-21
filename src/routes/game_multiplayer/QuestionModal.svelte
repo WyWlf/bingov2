@@ -35,7 +35,7 @@
 		margin-top: 0;
 		color: white;
 		font-size: 0.8rem;
-		width: 9vw;
+		width: 3rem;
 		height: 2.4vh;
 		font-family: Arial, Helvetica, sans-serif;
 		text-align: center;

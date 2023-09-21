@@ -7,9 +7,9 @@
 		wrong_count,
 		hp,
 		multiplayer,
-		game_start
+		game_start,
+		gameInfo
 	} from './config';
-	import bg_msc from '../assets/music/bg_music.mp3';
 	import Cookies from 'js-cookie';
 	import Card from './card.svelte';
 	import Span from './span.svelte';
@@ -19,37 +19,55 @@
 	import { io } from '$lib/webSocketConnection.js';
 	import { PUBLIC_APIPATH } from '$env/static/public';
 	import QuestionModal from './QuestionModal.svelte';
-	import { formula , beaker } from 'svelte-formula';
+	import { formula, beaker } from 'svelte-formula';
 
-	let spectator = false
+	let spectator: any = false;
 	let showModal = false;
-	$: winner = '';
 	let host = Cookies.get('host');
 	let session: any = '';
 	let opened = false;
 	let count = 0;
 	// $: console.log(count);
 	let time: any;
+	let started: boolean = false;
+	$: winner = '';
 
-    const {form, submitValues, formValidity} = formula();
+	game_start.subscribe((val) => {
+		started = val;
+	});
+	if (Cookies.get('spectator') == null) {
+		Cookies.set('spectator', 'false');
+	} else if (Cookies.get('spectator') == 'false') {
+		spectator = false;
+	} else if (Cookies.get('spectator') == 'true') {
+		spectator = true;
+	}
+	const { form, formValidity } = formula();
 	const formGroup = beaker();
 	const handleSubmit = async () => {
-		const newQuestionForm = formGroup.formValues
-		const patchForm = await fetch(PUBLIC_APIPATH+'config_update.php', {
+		const newQuestionForm = formGroup.formValues;
+		const patchForm = await fetch(PUBLIC_APIPATH + 'config_update.php', {
 			method: 'POST',
 			body: JSON.stringify({
 				main: get(newQuestionForm),
 				game: Cookies.get('multiplayer_session')
 			})
-		})
-	}
+		});
+	};
+	const handleSpectate = () => {
+		if (spectator == false) {
+			spectator = true;
+		} else {
+			spectator = false;
+		}
+		Cookies.set('spectator', spectator);
+		console.log(spectator);
+	};
 	localStorage['token'] = 0;
 	let url = '';
 	let game_config: any = {};
 	let answers: Array<any> = [];
 	let questionString: Array<any> = [];
-	let bgMsc = new Audio(bg_msc);
-	bgMsc.volume = 0.1;
 
 	if (Cookies.get('multiplayer_session') == null) {
 		let game = Math.floor(Math.random() * 999999 + 1);
@@ -152,8 +170,12 @@
 	}
 	function gameStart() {
 		io.emit('game-start', Cookies.get('multiplayer_session'));
-		game_start.set(true);
-		removeModal();
+		if (spectator == false) {
+			game_start.set(true);
+			removeModal();
+		} else {
+			removeModal();
+		}
 	}
 
 	let logs: any = [];
@@ -174,6 +196,7 @@
 				player_count = data['origin_player'].length;
 				player_lost = data['lost'].length;
 				logs = data['players'];
+				gameInfo.set(data);
 			}
 		});
 		io.emit('reconnect', {
@@ -183,10 +206,10 @@
 		io.on('active', (data) => {
 			if (data['room'] == Cookies.get('multiplayer_session')) {
 				removeModal();
-				// console.log(data);
 				joined = data['players'].length;
 				player_count = data['origin_player'].length;
 				player_lost = data['lost'].length;
+				gameInfo.set(data);
 			} else if (data == false) {
 				Cookies.remove('multiplayer_session');
 				window.location.href = '/multiplayer';
@@ -200,6 +223,7 @@
 				player_lost = data['lost'].length;
 				logs = data['players'];
 				Cookies.set('host_name', data['host']);
+				gameInfo.set(data);
 			}
 		});
 		io.on('begin', (data) => {
@@ -213,20 +237,25 @@
 				opened = true;
 				gamesave(0);
 				clearInterval(time);
-				console.log(winner);
+				gameInfo.set(data);
 			}
 		});
 
 		io.on('player-dc', (data) => {
-			console.log(data);
-			logs = data['new']['players'];
-			logs = logs;
-			joined = data['new']['players'].length;
-			player_lost = data['new']['lost'].length;
+			if (data['new']['room'] == Cookies.get('multiplayer_session')) {
+				logs = data['new']['players'];
+				logs = logs;
+				joined = data['new']['players'].length;
+				player_lost = data['new']['lost'].length;
+				gameInfo.set(data['new']);
+			}
 		});
 		io.on('player-reduced', (data) => {
-			joined = data['new']['players'].length;
-			player_lost = data['new']['lost'].length;
+			if (data['new']['room'] == Cookies.get('multiplayer_session')) {
+				joined = data['new']['players'].length;
+				player_lost = data['new']['lost'].length;
+				gameInfo.set(data['new']);
+			}
 		});
 	});
 
@@ -352,6 +381,13 @@
 				game: Cookies.get('multiplayer_session'),
 				winner: Cookies.get('username')
 			});
+			io.emit('winner-info', {
+				game: Cookies.get('multiplayer_session'),
+				player: Cookies.get('username'),
+				correct: get(correct_count),
+				wrong: get(wrong_count),
+				streak: highest
+			});
 			//@ts-ignore
 			winner = Cookies.get('username');
 			winSave();
@@ -379,6 +415,13 @@
 			game: Cookies.get('multiplayer_session'),
 			player: Cookies.get('username')
 		});
+
+		if (get(win_status) == 0) {
+			io.emit('reset', {
+				game: Cookies.get('multiplayer_session'),
+				player: Cookies.get('username')
+			});
+		}
 	});
 
 	function returnMenu() {
@@ -409,26 +452,36 @@
 	</div>
 	<div class="wait-modal">
 		<p style="font-weight: bold;">Players joined: {joined}</p>
-		<p>Your game code is: <span style="text-decoration: underline;">{session}</span></p>
-		<small style="color: brown;">Share this code to invite other players.</small>
-		<p>Spectator mode: <input type="checkbox" bind:checked={spectator} name="spectate" id="spectate" /></p>
-		<small style="color: brown;">If spectator mode is activated</small>
-		<br />
-		<small style="color: brown;">
-			The host would be unable to play and can only spectate the progress of the players.
-		</small>
-		<p>
-			Customize questions: <button
-				class="unset"
-				on:click={() => {
-					showModal = true;
-					getConfig();
-				}}>Open Questions</button
-			>
-		</p>
-		<small style="color: brown;">
-			You can customize your own questions by modifying the auto-generated questions.
-		</small>
+		{#if Cookies.get('host') == 'true'}
+			<p>Your game code is: <span style="text-decoration: underline;">{session}</span></p>
+			<small style="color: brown;">Share this code to invite other players.</small>
+			<p>
+				Spectator mode: <input
+					type="checkbox"
+					bind:checked={spectator}
+					on:click={handleSpectate}
+					name="spectate"
+					id="spectate"
+				/>
+			</p>
+			<small style="color: brown;">If spectator mode is activated,</small>
+			<br />
+			<small style="color: brown;">
+				The host would be unable to play and can only spectate the progress of the players.
+			</small>
+			<p>
+				Customize questions: <button
+					class="unset"
+					on:click={() => {
+						showModal = true;
+						getConfig();
+					}}>Open Questions</button
+				>
+			</p>
+			<small style="color: brown;">
+				You can customize your own questions by modifying the auto-generated questions.
+			</small>
+		{/if}
 		<div class="room-logs">
 			{#key logs}
 				{#each logs as players}
@@ -454,7 +507,11 @@
 			{:else}
 				<div style="display: flex; flex-direction:column; align-items:center; gap: 1rem">
 					<img src="src/routes/assets/images/loader.gif" alt="" style="height: 3rem; width: 3rem" />
-					<a href="/multiplayer">Leave</a>
+					<button
+						on:click={() => {
+							window.location.href = '/multiplayer';
+						}}>Leave</button
+					>
 				</div>
 			{/if}
 		</div>
@@ -476,7 +533,7 @@
 					<p>Question {i + 1}:</p>
 					<div class="question-flex">
 						<p>First value:</p>
-						<input type="text" bind:value={firstVal} name="firstVal{i}" required/>
+						<input type="text" bind:value={firstVal} name="firstVal{i}" required />
 						<p>Operation:</p>
 						<select name="operation{i}">
 							{#if operator == 'addition'}
@@ -524,77 +581,95 @@
 </div>
 
 <hr style="display: {gameBody};" />
-{#if spectator == 'false'}
-<div style="display: {gameBody};">
-	<Card {questionString}>
-		{#each answers as a, i}
-			<Span {a} {i} />
-		{/each}
-	</Card>
-	<Modal
-		centered
-		{opened}
-		target="body"
-		on:close={returnMenu}
-		title="Game ended"
-		overflow="inside"
-		{closeOnClickOutside}
-		{closeOnEscape}
-	>
-		{#if gameEnd == false && winner == Cookies.get('username')}
-			<div class="modal-container">
-				<span>🎉You have won!🎉</span><br /><br />
-				<small>Game has been recorded to your match history.</small>
-				<br /><br />
-				<hr />
-				<span>Game Stats</span>
-				<br /><br />
-				<div class="game-stat">
-					<p>Time finished</p>
-					<p>: {time_finished}</p>
-					<p>Highest answer streak</p>
-					<p>: {highest}</p>
-					<p>Correct answers</p>
-					<p>: {get(correct_count)}</p>
-					<p>Wrong answers</p>
-					<p>: {get(wrong_count)}</p>
+{#if spectator == false && started == true}
+	<div style="display: {gameBody};">
+		<Card {questionString}>
+			{#each answers as a, i}
+				<Span {a} {i} />
+			{/each}
+		</Card>
+		<Modal
+			centered
+			{opened}
+			target="body"
+			on:close={returnMenu}
+			title="Game ended"
+			overflow="inside"
+			{closeOnClickOutside}
+			{closeOnEscape}
+		>
+			{#if gameEnd == false && winner == Cookies.get('username')}
+				<div class="modal-container">
+					<span>🎉You have won!🎉</span><br /><br />
+					<small>Game has been recorded to your match history.</small>
+					<br /><br />
+					<hr />
+					<span>Game Stats</span>
+					<br /><br />
+					<div class="game-stat">
+						<p>Time finished</p>
+						<p>: {time_finished}</p>
+						<p>Highest answer streak</p>
+						<p>: {highest}</p>
+						<p>Correct answers</p>
+						<p>: {get(correct_count)}</p>
+						<p>Wrong answers</p>
+						<p>: {get(wrong_count)}</p>
+					</div>
 				</div>
-			</div>
-		{:else if gameEnd == true}
-			<div class="modal-container">
-				<span>You've ran out of HP!</span><br /><br />
-				<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
-				<br /><br />
-				<hr />
-				<div class="button-group" style="justify-content: center;">
-					<button
-						on:click={() => {
-							window.location.href = '/multiplayer';
-						}}>Return</button
-					>
+			{:else if gameEnd == true}
+				<div class="modal-container">
+					<span>You've ran out of HP!</span><br /><br />
+					<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
+					<br /><br />
+					<hr />
+					<div class="button-group" style="justify-content: center;">
+						<button
+							on:click={() => {
+								window.location.href = '/multiplayer';
+							}}>Return</button
+						>
+					</div>
 				</div>
-			</div>
-		{:else if gameEnd == false && winner != Cookies.get('username')}
-			<div class="modal-container">
-				<span>You have lost!</span><br /><br />
-				<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
-				<br /><br />
-				<hr />
-				<div class="button-group" style="justify-content: center;">
-					<button
-						on:click={() => {
-							window.location.href = '/multiplayer';
-						}}>Return</button
-					>
+			{:else if gameEnd == false && winner != Cookies.get('username')}
+				<div class="modal-container">
+					<span>You have lost!</span><br /><br />
+					<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
+					<br /><br />
+					<hr />
+					<div class="button-group" style="justify-content: center;">
+						<button
+							on:click={() => {
+								window.location.href = '/multiplayer';
+							}}>Return</button
+						>
+					</div>
 				</div>
+			{/if}
+		</Modal>
+	</div>
+{:else if spectator == true && started == true && Cookies.get('host') == 'true'}
+	<div id="header2">
+		<div class="game-header">
+			<div>
+				<p>Game code: <span style="font-weight: bold;">{session}</span></p>
+				<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
+				<p>Mode: <span style="font-weight: bold;">Operations</span></p>
+				<div style="display: flex; justify-content:center">Spectating...</div>
 			</div>
-		{/if}
-	</Modal>
-</div>
-{:else if spectator == 'true'}
-	<Spectator />
+			<div />
+		</div>
+	</div>
+	<hr class="hr-mobile">
+	<div style="display: {gameBody}">
+		<Spectator />
+	</div>
 {/if}
+
 <style>
+	small {
+		text-align: center;
+	}
 	.button-container {
 		display: flex;
 		justify-content: flex-end;
@@ -605,6 +680,7 @@
 		font-family: Arial, Helvetica, sans-serif;
 		font-weight: light;
 		justify-self: center;
+		width: 10rem;
 	}
 	.save-changes:hover {
 		box-shadow: 0px 0px 10px 5px skyblue;
@@ -619,8 +695,11 @@
 		grid-template-columns: 1fr;
 	}
 	.question-list {
-		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+		display: flex;
+		flex-direction: row;
+		width: 70vw;
+		justify-content: space-around;
+		flex-wrap: wrap;
 		border: 1px solid black;
 		padding: 2rem;
 		gap: 2.5rem;
@@ -664,10 +743,13 @@
 	.room-logs span {
 		text-align: center;
 	}
-	#header {
+	#header, #header2 {
 		height: 20svh;
 		height: 20vh;
 		background-color: white;
+	}
+	#header2 {
+		padding: 1rem;
 	}
 	.button-group-modal button:hover {
 		color: rgb(34, 255, 255);
@@ -723,14 +805,30 @@
 		box-shadow: 0px 0px 15px 1px blueviolet;
 		color: rgb(34, 255, 255);
 	}
-
+	@media (min-width: 769px) {
+		#header2, .hr-mobile {
+			display: none;
+		}
+	}
 	@media (max-width: 768px) {
 		#header,
 		hr {
 			display: none;
 		}
+		#header2, .hr-mobile {
+			display: block;
+		}
 		.button-group {
 			padding: 0.5rem;
+		}
+		.question-list {
+			width: 70vw;
+		}
+		.ModalQ > h1 {
+			font-size: 1.5rem;
+		}
+		.save-changes {
+			width: 10rem;
 		}
 	}
 	@media (max-width: 468px) {

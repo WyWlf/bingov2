@@ -1,6 +1,7 @@
 <script lang="ts">
 	import correct from '../assets/music/correct.mp3';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
+	import { io } from '$lib/webSocketConnection.js';
 	import { get } from 'svelte/store';
 	export let a: any;
 	export let i: any;
@@ -17,9 +18,10 @@
 		win_status,
 		correct_count,
 		wrong_count,
-		max
+		max,
 	} from './config';
 	import { onMount } from 'svelte';
+	import Cookies from 'js-cookie';
 	let prop: any;
 	const winCondition = get(win);
 	function checkWin(main: any, answer: any) {
@@ -37,6 +39,11 @@
 		if (answer != null && answer == curr_question) {
 			console.log('correct');
             trigger.set(true)
+			io.emit('correct', {
+				player: Cookies.get('username'),
+				answer: matrix,
+				game: Cookies.get('multiplayer_session')
+			})
             bonus_hp.update(prev => prev + 1)
             if (get(bonus_hp) == 5){
                 bonus_hp.set(0)
