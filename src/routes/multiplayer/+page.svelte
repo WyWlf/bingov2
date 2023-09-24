@@ -42,11 +42,12 @@
 		message = 'Room not found';
 	});
 	io.on('room-found', (data) => {
-		if (code == data['room'] && data != false) {
+		console.log(data)
+		if (code == data['room'] && data != false  && data['ended'] == false) {
 			Cookies.set('multiplayer_session', data['room']);
 			window.location.href = '/game_multiplayer';
 			message = 'Room found';
-		} else if (data == false) {
+		} else if (data == false || data['ended'] == true) {
 			Cookies.remove('mutiplayer_session');
 			message = 'Cannot reconnect to this match';
 		}

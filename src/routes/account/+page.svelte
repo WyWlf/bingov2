@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { Tabs, TabItem, AccordionItem, Accordion, Button } from 'flowbite-svelte';
-	import { onMount } from 'svelte';
-	import Flashlight from '../game/flashlight.svelte';
 	export let data;
 	let info: any = data.post;
 </script>
@@ -61,7 +59,6 @@
 									<b>Wrong answers: </b>
 									<p>{wrong_answers}</p>
 								</div>
-								<hr>
 							</AccordionItem>
 						{:else if status == 1 && mode == 0}
 							<AccordionItem class="bg-blue-200 hover:bg-blue-300">
@@ -101,7 +98,6 @@
 									<b>Wrong answers: </b>
 									<p>{wrong_answers}</p>
 								</div>
-								<hr>
 							</AccordionItem>
 						{/if}
 					{/each}
@@ -186,8 +182,8 @@
 		</TabItem>
 	</Tabs>
 	<br />
-	<div class="footer-nav">
-		<Button color="dark" href="/main">Back</Button>
+	<div class="footer-nav" data-sveltekit-preload-data="off">
+		<Button color="dark" href="/main" size='xl'>Back</Button>
 	</div>
 </div>
 
@@ -212,10 +208,6 @@
 			border: unset;
 			border-radius: unset;
 			height: unset;
-		}
-		.accordion-container {
-			overflow-y: scroll;
-			height: 67vh;
 		}
 		.main-body {
 			width: 70%;
@@ -248,9 +240,10 @@
 			}
 		}
 		.footer-nav {
-			position: relative;
-			float: right;
-			padding: 1rem;
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			padding: 2rem;
 		}
 	</style>
 </svelte:head>

@@ -1,6 +1,5 @@
 /** @type {import('./$types').PageLoad} */
 import { PUBLIC_APIPATH } from '$env/static/public';
-import Cookies from 'js-cookie';
 export async function load({ url }) {
     const user = url.searchParams.get('user')
     let info: any = []

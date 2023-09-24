@@ -39,6 +39,7 @@
 		if (answer != null && answer == curr_question) {
 			console.log('correct');
             trigger.set(true)
+			comboCounter.update((prev) => prev + 1);
 			io.emit('correct', {
 				player: Cookies.get('username'),
 				answer: matrix,
@@ -59,7 +60,6 @@
 			}
 
 			time.set(60);
-			comboCounter.update((prev) => prev + 1);
 			this.style.backgroundColor = 'blue';
 			prop = 'none';
 			let soundeff = new Audio(correct);

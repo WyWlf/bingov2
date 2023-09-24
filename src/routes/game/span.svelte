@@ -45,6 +45,7 @@
 			console.log('correct');
             trigger.set(true)
             bonus_hp.update(prev => prev + 1)
+			comboCounter.update((prev) => prev + 1);
             if (get(bonus_hp) == 5){
                 bonus_hp.set(0)
                 if(get(hp) < 5){
@@ -59,7 +60,6 @@
 			}
 
 			time.set(timer);
-			comboCounter.update((prev) => prev + 1);
 			this.style.backgroundColor = 'blue';
 			prop = 'none';
 			let soundeff = new Audio(correct);

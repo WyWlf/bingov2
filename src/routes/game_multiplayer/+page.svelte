@@ -324,7 +324,7 @@
 		return '' + fval + '' + operations[operator] + '' + lval + '';
 	}
 
-	async function gamesave(condition: number) {
+	function gamesave(condition: number) {
 		let day = new Date();
 		const today = day.toLocaleDateString();
 
@@ -341,24 +341,21 @@
 			winner: winner,
 			date: today
 		};
-		const sql = await fetch(PUBLIC_APIPATH + 'match_save.php', {
+		const sql = fetch(PUBLIC_APIPATH + 'match_save.php', {
 			method: 'POST',
 			body: JSON.stringify(match_record)
 		});
-		let echo_code: string = await sql.text();
 	}
 
-	async function winSave() {
+	function winSave() {
 		let match_record = {
 			game: Cookies.get('multiplayer_session'),
-			host: Cookies.get('host_name'),
 			winner: winner
 		};
-		const sql = await fetch(PUBLIC_APIPATH + 'winner_save.php', {
+		const sql = fetch(PUBLIC_APIPATH + 'winner_save.php', {
 			method: 'POST',
 			body: JSON.stringify(match_record)
 		});
-		let echo_code: string = await sql.text();
 	}
 
 	hp.subscribe((val) => {
@@ -389,7 +386,7 @@
 				player: Cookies.get('username'),
 				correct: get(correct_count),
 				wrong: get(wrong_count),
-				streak: highest + 1
+				streak: highest
 			});
 			//@ts-ignore
 			winner = Cookies.get('username');
@@ -583,27 +580,19 @@
 </QuestionModal>
 <div id="header" style="display: {gameBody};">
 	{#key info}
-		{#if info['spectate'] == true}
-		<div style="display: flex;">
-			<div style="display: flex; flex-direction:column; margin: auto;">
-				<small style="text-align: unset;">
-					🟦 = Player is currently active.
-				</small>
-				<small style="text-align: unset;">
-					🟥 = Player has lost all of their HP.
-				</small>
-				<small style="text-align: unset;">
-					⬛ = Player has been disconnected.
-				</small>
+		{#if info['spectate'] == true && Cookies.get('host') == 'true'}
+			<div style="display: flex;">
+				<div style="display: flex; flex-direction:column; margin: auto;">
+					<small style="text-align: unset;"> 🟦 = Player is currently active. </small>
+					<small style="text-align: unset;"> 🟥 = Player has lost all of their HP. </small>
+					<small style="text-align: unset;"> ⬛ = Player has been disconnected. </small>
+				</div>
 			</div>
-		</div>
 		{/if}
-	{/key}
-	<div class="game-header">
-		<div>
-			<p>Game code: <span style="font-weight: bold;">{session}</span></p>
-			<p>Mode: <span style="font-weight: bold;">Operations</span></p>
-			{#key info}
+		<div class="game-header">
+			<div>
+				<p>Game code: <span style="font-weight: bold;">{session}</span></p>
+				<p>Mode: <span style="font-weight: bold;">Operations</span></p>
 				{#if info['spectate'] == true}
 					<p>
 						Players left: <span style="font-weight: bold;">{joined - 1}/{player_count - 1}</span>
@@ -611,14 +600,14 @@
 				{:else}
 					<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
 				{/if}
-			{/key}
+			</div>
+			<div />
 		</div>
-		<div />
-	</div>
+	{/key}
 </div>
 
 <hr style="display: {gameBody};" />
-{#if info['spectate'] == false || Cookies.get('host') == 'false'}
+{#if info['spectate'] == false && info['ended'] == false || Cookies.get('host') == 'false' && info['ended'] == false}
 	<div style="display: {gameBody};">
 		<Card {questionString}>
 			{#each answers as a, i}
@@ -685,7 +674,7 @@
 			{/if}
 		</Modal>
 	</div>
-{:else if info['spectate'] == true && info['host'] == Cookies.get('username') && Cookies.get('host') == 'true'}
+{:else if info['ended'] == false && info['spectate'] == true && info['host'] == Cookies.get('username') && Cookies.get('host') == 'true'}
 	<div id="header2">
 		<div style="display: flex;">
 			<div style="display: flex; flex-direction:column; margin: auto;">
