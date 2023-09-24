@@ -25,19 +25,17 @@
 	scores.subscribe((val) => {
 		score = val;
 	});
-	$: console.log(score);
 
 	$: if (gameData['ended'] == true) {
 		opened = true;
 		console.log(gameData['winner']);
 	}
-	$: console.log(gameData);
 </script>
 
 <div class="container">
 	{#key gameData}
 		{#each gameData['origin_player'] as player}
-			{#if player != gameData['host'] && !gameData['lost'].includes(player)}
+			{#if player != gameData['host'] && !gameData['lost'].includes(player) && gameData['players'].includes(player)}
 				<div class="player-container">
 					<div class="dropdown">
 						<FaInfoCircle />
@@ -123,11 +121,69 @@
 						{/each}
 					</div>
 				</div>
+			{:else if player != gameData['host'] && !gameData['players'].includes(player)}
+				<div class="player-container" style="background-color: gray; border: 2px solid blue">
+					<div class="dropdown">
+						<FaInfoCircle />
+					</div>
+					<p style="margin: auto; color: white">This player has lost connection...</p>
+					<br/>
+					<div class="user-header" style="color: black">{player}</div>
+					<br /><br />
+					<div class="user-card">
+						{#each boxes as box, i}
+							{#if i < 5}
+								{#if score[player] != null && score[player].includes('a' + i)}
+									<div class="box" id="a{i}" style="background-color:green">x</div>
+								{:else}
+									<div class="box" id="a{i}" style="">x</div>
+								{/if}
+							{:else if i < 10}
+								{#if score[player] != null && score[player].includes('b' + i)}
+									<div class="box" id="b{i}" style="background-color:green">x</div>
+								{:else}
+									<div class="box" id="b{i}" style="">x</div>
+								{/if}
+							{:else if i < 15}
+								{#if score[player] != null && score[player].includes('c' + i)}
+									<div class="box" id="c{i}" style="background-color:green">x</div>
+								{:else}
+									<div class="box" id="c{i}" style="">x</div>
+								{/if}
+							{:else if i < 20}
+								{#if score[player] != null && score[player].includes('d' + i)}
+									<div class="box" id="d{i}" style="background-color:green">x</div>
+								{:else}
+									<div class="box" id="d{i}" style="">x</div>
+								{/if}
+							{:else if i < 25}
+								{#if score[player] != null && score[player].includes('e' + i)}
+									<div class="box" id="e{i}" style="background-color:green">x</div>
+								{:else}
+									<div class="box" id="e{i}" style="">x</div>
+								{/if}
+							{/if}
+						{/each}
+					</div>
+				</div>
 			{/if}
 		{/each}
 	{/key}
 </div>
-
+<hr />
+{#key gameData}
+	{#if gameData['players'].length - 1 <= 0}
+		<div
+			class="button-footer"
+			style="display: flex; flex-direction: column; justify-content: center; align-items:center; background-color: white; padding: 2rem"
+		>
+			<p>There are no more players left.</p>
+			<a href="/multiplayer">
+				<button>Close match.</button>
+			</a>
+		</div>
+	{/if}
+{/key}
 <Modal
 	centered
 	{opened}
@@ -249,7 +305,7 @@
 		gap: 2rem;
 		height: max-content;
 		justify-content: space-around;
-		height: 75vh;
+		height: max-content;
 	}
 	.user-card {
 		display: grid;
@@ -267,6 +323,9 @@
 		text-align: center;
 		background-color: wheat;
 	}
+	.button-footer button {
+		width: 20vw;
+	}
 	.player-container {
 		display: flex;
 		flex-direction: column;
@@ -277,5 +336,11 @@
 		margin: 0.5rem;
 		height: max-content;
 		box-sizing: border-box;
+	}
+
+	@media (max-width: 768px) {
+		.button-footer button {
+			width: 40vw;
+		}
 	}
 </style>

@@ -21,13 +21,12 @@
 	import QuestionModal from './QuestionModal.svelte';
 	import { formula, beaker } from 'svelte-formula';
 
-	let spectator: any = false;
+	$: spectator = false;
 	let showModal = false;
 	let host = Cookies.get('host');
 	let session: any = '';
 	let opened = false;
 	let count = 0;
-	// $: console.log(count);
 	let time: any;
 	let started: boolean = false;
 	$: winner = '';
@@ -61,9 +60,7 @@
 			spectator = false;
 		}
 		Cookies.set('spectator', spectator);
-		console.log(spectator);
 	};
-	localStorage['token'] = 0;
 	let url = '';
 	let game_config: any = {};
 	let answers: Array<any> = [];
@@ -166,14 +163,21 @@
 		gameBody = '';
 		multiplayer_header = 'none';
 		game_start.set(true);
-		// console.log(get(game_start));
 	}
 	function gameStart() {
 		io.emit('game-start', Cookies.get('multiplayer_session'));
 		if (spectator == false) {
 			game_start.set(true);
+			io.emit('spectateInfo', {
+				room: session,
+				spectate: spectator
+			});
 			removeModal();
 		} else {
+			io.emit('spectateInfo', {
+				room: session,
+				spectate: spectator
+			});
 			removeModal();
 		}
 	}
@@ -187,7 +191,8 @@
 		if (Cookies.get('host') == 'true') {
 			io.emit('multiplayer-creation', {
 				room: session,
-				player: Cookies.get('username')
+				player: Cookies.get('username'),
+				spectate: spectator
 			});
 		}
 		io.on('new-player', (data) => {
@@ -341,7 +346,6 @@
 			body: JSON.stringify(match_record)
 		});
 		let echo_code: string = await sql.text();
-		console.log(echo_code);
 	}
 
 	async function winSave() {
@@ -355,7 +359,6 @@
 			body: JSON.stringify(match_record)
 		});
 		let echo_code: string = await sql.text();
-		console.log(echo_code);
 	}
 
 	hp.subscribe((val) => {
@@ -371,7 +374,7 @@
 			Cookies.remove('multiplayer_session');
 		}
 	});
-
+	let highest = 0;
 	win_status.subscribe((value) => {
 		if (value > 0) {
 			opened = true;
@@ -386,7 +389,7 @@
 				player: Cookies.get('username'),
 				correct: get(correct_count),
 				wrong: get(wrong_count),
-				streak: highest
+				streak: highest + 1
 			});
 			//@ts-ignore
 			winner = Cookies.get('username');
@@ -402,7 +405,6 @@
 	$: seconds = count % 60;
 
 	$: time_finished = '' + minutes + ' minute(s) & ' + seconds + ' second(s)';
-	let highest = 0;
 
 	comboCounter.subscribe((value) => {
 		let curr_val = value;
@@ -424,6 +426,10 @@
 		}
 	});
 
+	onDestroy(() => {
+		window.location.href = '/multiplayer_room';
+	});
+
 	function returnMenu() {
 		Cookies.remove('multiplayer_session');
 		window.location.href = '/multiplayer';
@@ -443,6 +449,11 @@
 	$: if (showModal == false) {
 		question_form = [];
 	}
+	let info: any;
+	gameInfo.subscribe((val) => {
+		info = val;
+	});
+	$: console.log(info);
 </script>
 
 <div class="wait-container" style="display: {multiplayer_header};">
@@ -491,7 +502,13 @@
 				{/each}
 			{/key}
 		</div>
-		<p style="font-weight: bold;">Waiting for other players to join...</p>
+		{#if Cookies.get('host') == 'true'}
+			<p style="font-weight: bold;">Waiting for other players.</p>
+		{:else}
+			<p style="font-weight: bold;">Waiting for other players.</p>
+			<br />
+			<p style="font-weight: bold;">Only the host can start the game.</p>
+		{/if}
 		<div class="button-group-modal" style="display:flex; gap: 2rem">
 			{#if host == 'true'}
 				<button
@@ -517,12 +534,7 @@
 		</div>
 	</div>
 </div>
-<QuestionModal
-	bind:showModal
-	on:close={() => {
-		console.log('hi');
-	}}
->
+<QuestionModal bind:showModal on:close={() => {}}>
 	<div class="ModalQ" slot="header">
 		<h1>Customize questions:</h1>
 	</div>
@@ -570,18 +582,43 @@
 	</form>
 </QuestionModal>
 <div id="header" style="display: {gameBody};">
+	{#key info}
+		{#if info['spectate'] == true}
+		<div style="display: flex;">
+			<div style="display: flex; flex-direction:column; margin: auto;">
+				<small style="text-align: unset;">
+					🟦 = Player is currently active.
+				</small>
+				<small style="text-align: unset;">
+					🟥 = Player has lost all of their HP.
+				</small>
+				<small style="text-align: unset;">
+					⬛ = Player has been disconnected.
+				</small>
+			</div>
+		</div>
+		{/if}
+	{/key}
 	<div class="game-header">
 		<div>
 			<p>Game code: <span style="font-weight: bold;">{session}</span></p>
-			<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
 			<p>Mode: <span style="font-weight: bold;">Operations</span></p>
+			{#key info}
+				{#if info['spectate'] == true}
+					<p>
+						Players left: <span style="font-weight: bold;">{joined - 1}/{player_count - 1}</span>
+					</p>
+				{:else}
+					<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
+				{/if}
+			{/key}
 		</div>
 		<div />
 	</div>
 </div>
 
 <hr style="display: {gameBody};" />
-{#if spectator == false && started == true}
+{#if info['spectate'] == false || Cookies.get('host') == 'false'}
 	<div style="display: {gameBody};">
 		<Card {questionString}>
 			{#each answers as a, i}
@@ -608,7 +645,7 @@
 					<br /><br />
 					<div class="game-stat">
 						<p>Time finished</p>
-						<p>: {time_finished}</p>
+						<p style="text-align: left;">: {time_finished}</p>
 						<p>Highest answer streak</p>
 						<p>: {highest}</p>
 						<p>Correct answers</p>
@@ -648,19 +685,34 @@
 			{/if}
 		</Modal>
 	</div>
-{:else if spectator == true && started == true && Cookies.get('host') == 'true'}
+{:else if info['spectate'] == true && info['host'] == Cookies.get('username') && Cookies.get('host') == 'true'}
 	<div id="header2">
+		<div style="display: flex;">
+			<div style="display: flex; flex-direction:column; margin: auto;">
+				<small style="text-align: unset;"> 🟦 = Player is currently active. </small>
+				<small style="text-align: unset;"> 🟥 = Player has lost all of their HP. </small>
+				<small style="text-align: unset;"> ⬛ = Player has been disconnected. </small>
+			</div>
+		</div>
 		<div class="game-header">
 			<div>
 				<p>Game code: <span style="font-weight: bold;">{session}</span></p>
-				<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
+				{#key info}
+					{#if info['spectate'] == true}
+						<p>
+							Players left: <span style="font-weight: bold;">{joined - 1}/{player_count - 1}</span>
+						</p>
+					{:else}
+						<p>Players left: <span style="font-weight: bold;">{joined}/{player_count}</span></p>
+					{/if}
+				{/key}
 				<p>Mode: <span style="font-weight: bold;">Operations</span></p>
 				<div style="display: flex; justify-content:center">Spectating...</div>
 			</div>
 			<div />
 		</div>
 	</div>
-	<hr class="hr-mobile">
+	<hr class="hr-mobile" />
 	<div style="display: {gameBody}">
 		<Spectator />
 	</div>
@@ -687,6 +739,7 @@
 		color: white;
 	}
 	.modal-container {
+		background-color: skyblue;
 		border: 1px solid rgb(0, 0, 0);
 		padding: 1rem;
 	}
@@ -703,6 +756,7 @@
 		border: 1px solid black;
 		padding: 2rem;
 		gap: 2.5rem;
+		background-color: rgb(191, 191, 243);
 	}
 	.ModalQ > h1 {
 		font-size: 2rem;
@@ -743,7 +797,8 @@
 	.room-logs span {
 		text-align: center;
 	}
-	#header, #header2 {
+	#header,
+	#header2 {
 		height: 20svh;
 		height: 20vh;
 		background-color: white;
@@ -806,7 +861,8 @@
 		color: rgb(34, 255, 255);
 	}
 	@media (min-width: 769px) {
-		#header2, .hr-mobile {
+		#header2,
+		.hr-mobile {
 			display: none;
 		}
 	}
@@ -815,7 +871,8 @@
 		hr {
 			display: none;
 		}
-		#header2, .hr-mobile {
+		#header2,
+		.hr-mobile {
 			display: block;
 		}
 		.button-group {

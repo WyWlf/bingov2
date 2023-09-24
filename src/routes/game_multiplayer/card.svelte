@@ -75,7 +75,7 @@
 		bonus_hp.set(0)
 		hp.update((prev) => prev - 1);
 		comboCounter.set(0)
-		count.update(prev => prev + 1)
+		// count.update(prev => prev + 1)
 		threshold = 'none'
 		time.set(60);
 		let soundeff = new Audio(incorrect);

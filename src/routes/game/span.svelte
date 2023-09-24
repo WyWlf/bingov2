@@ -20,7 +20,14 @@
 		max
 	} from './config';
 	import { onMount } from 'svelte';
+	import Cookies from 'js-cookie';
 	let prop: any;
+	let timer = 60;
+	onMount(() => {
+		if(Cookies.get('rush_mode') != null && Cookies.get('rush_mode') == 'on'){
+			timer = 30
+		}
+	})
 	const winCondition = get(win);
 	function checkWin(main: any, answer: any) {
 		for (let x = 0; x < 12; x++) {
@@ -51,7 +58,7 @@
 				win_status.set(1);
 			}
 
-			time.set(60);
+			time.set(timer);
 			comboCounter.update((prev) => prev + 1);
 			this.style.backgroundColor = 'blue';
 			prop = 'none';
@@ -61,7 +68,7 @@
 			console.log('wrong');
             bonus_hp.set(0)
 			wrong_count.update((prev) => prev + 1);
-			time.set(60);
+			time.set(timer);
 			comboCounter.set(0);
 			hp.update((prev) => prev - 1);
 			let soundeff = new Audio(incorrect);

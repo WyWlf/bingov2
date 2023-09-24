@@ -14,6 +14,7 @@ export default function injectSocketIO(server) {
 				players.push({
 					room: data['room'],
 					host: data['player'],
+					spectate: data['spectate'],
 					players: [data['player']],
 					origin_player: [data['player']],
 					lost: [],
@@ -148,6 +149,14 @@ export default function injectSocketIO(server) {
 				obj['correct'] = data['correct']
 				obj['combo'] = data['streak']
 				socket.broadcast.emit('gameInfoRes', obj)
+			}
+		})
+
+		socket.on('spectateInfo', data => {
+			let obj = players.find(o => o.room === data['room'])
+			if (obj != null){
+				obj['spectate'] = data['spectate']
+				socket.emit('gameInfoRes', obj)
 			}
 		})
 	})

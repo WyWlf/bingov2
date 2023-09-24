@@ -4,7 +4,7 @@ require 'connection.php';
 $content = json_decode(file_get_contents('php://input'), true);
 
 if(!empty($content)){
-    $sql = 'SELECT * FROM match_history where username = ?';
+    $sql = 'SELECT * FROM match_history where username = ? ORDER BY id DESC';
     $sth = $conn->prepare($sql);
     $sth -> bindParam(1, $content['data'], PDO::PARAM_STR);
     $sth -> execute();

@@ -1,12 +1,21 @@
 <script lang="ts">
 	// @ts-nocheck comment
 	import '../style.css';
-	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status} from './config';
+	import {bonus_hp, trigger, max, hp, count, current_question, comboCounter, time, win_status, answer_matrix, correct_count, wrong_count} from './config';
 	import { get } from 'svelte/store';
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
 	import heart from '../assets/images/heart.png'
+	import { onDestroy, onMount } from 'svelte';
+	import Cookies from 'js-cookie';
 	// import lowTime from '../assets/music/time.wav';
 	export let questionString: Array<any> = [];
+	let timer = 60
+	onMount(() => {
+		if(Cookies.get('rush_mode') != null && Cookies.get('rush_mode') == 'on'){
+			time.set(30)
+			timer = 30
+		}
+	})
 	let counter = 0;
 	trigger.subscribe(val => {
 		if (val == true){
@@ -67,21 +76,21 @@
 		bonus_hp.set(0)
 		hp.update((prev) => prev - 1);
 		comboCounter.set(0)
-		count.update((prev) => prev + 1)
+		// count.update((prev) => prev + 1)
 		threshold = 'none'
-		time.set(60);
+		time.set(timer);
 		let soundeff = new Audio(incorrect);
 		soundeff.play()
 	}
 	let border_warn = '';
 	$: if (countdown < 15) {
-		// let soundeff = new Audio(lowTime)
-		// soundeff.volume = 0.3
-		// soundeff.play()
 		border_warn = 'active'
 	} else {
 		border_warn = ''
 	}
+	onDestroy(() => {
+		window.location.href = '/singleplayer'
+	})
 </script>
 
 <div class="card-container">
@@ -203,6 +212,7 @@
 		box-sizing: border-box;
 		background: linear-gradient(to right, #b31ace, #39175c);
 		box-shadow: 0px 0px 25px 15px rgb(29, 35, 97);
+		word-break: break-all;
 	}
 	.card.active {
 		animation: timeLow 1s infinite linear;
@@ -243,7 +253,13 @@
 		height: 3rem;
 		width: 3rem;
 	}
-
+	@media (max-width: 1024px) {
+		.question {
+			padding: 1rem;
+			padding-left: 0;
+			margin: 1rem;
+		}
+	}
 	@media (min-width: 1024px){
 		.question-box {
 			height: 10vh;
