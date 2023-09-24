@@ -1,0 +1,28 @@
+{
+	"/": [
+		"src/routes/+page.js"
+	],
+	"/account": [
+		"src/routes/account/+page.ts",
+		"src/routes/account/+layout.js",
+		"src/routes/account/+layout.js"
+	],
+	"/game_multiplayer": [
+		"src/routes/game_multiplayer/+page.js"
+	],
+	"/game": [
+		"src/routes/game/+page.js"
+	],
+	"/main": [
+		"src/routes/main/+page.js"
+	],
+	"/multiplayer_room": [
+		"src/routes/multiplayer_room/+page.js"
+	],
+	"/multiplayer": [
+		"src/routes/multiplayer/+page.js"
+	],
+	"/singleplayer": [
+		"src/routes/singleplayer/+page.js"
+	]
+}
