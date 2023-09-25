@@ -12,11 +12,13 @@ export type Snapshot<T = any> = Kit.Snapshot<T>;
 type PageParentData = EnsureDefined<LayoutData>;
 type LayoutRouteId = RouteId | "/" | "/account" | "/game" | "/game_multiplayer" | "/main" | "/multiplayer" | "/multiplayer_room" | "/singleplayer" | null
 type LayoutParams = RouteParams & {  }
+type LayoutServerParentData = EnsureDefined<{}>;
 type LayoutParentData = EnsureDefined<{}>;
 
 export type PageServerData = null;
-export type PageLoad<OutputData extends OutputDataShape<PageParentData> = OutputDataShape<PageParentData>> = Kit.Load<RouteParams, PageServerData, PageParentData, OutputData, RouteId>;
-export type PageLoadEvent = Parameters<PageLoad>[0];
-export type PageData = Expand<Omit<PageParentData, keyof PageParentData & EnsureDefined<PageServerData>> & OptionalUnion<EnsureDefined<PageParentData & EnsureDefined<PageServerData>>>>;
+export type PageData = Expand<PageParentData>;
+export type LayoutServerLoad<OutputData extends OutputDataShape<LayoutServerParentData> = OutputDataShape<LayoutServerParentData>> = Kit.ServerLoad<LayoutParams, LayoutServerParentData, OutputData, LayoutRouteId>;
+export type LayoutServerLoadEvent = Parameters<LayoutServerLoad>[0];
 export type LayoutServerData = null;
 export type LayoutData = Expand<LayoutParentData>;
+export type RequestEvent = Kit.RequestEvent<RouteParams, RouteId>;

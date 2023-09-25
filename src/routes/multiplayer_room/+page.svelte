@@ -6,7 +6,6 @@
 	import '../style.css';
 	Cookies.set('host', 'false');
 	Cookies.set('host_name', '');
-	Cookies.remove('spectator');
 	$: show = false;
 	$: blurEffect = '';
     let loadTimer = 0;

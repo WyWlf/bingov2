@@ -1,28 +1,31 @@
 {
 	"/": [
-		"src/routes/+page.js"
+		"src/routes/+layout.server.js",
+		"src/routes/+layout.server.js"
 	],
 	"/account": [
 		"src/routes/account/+page.ts",
-		"src/routes/account/+layout.js",
-		"src/routes/account/+layout.js"
+		"src/routes/+layout.server.js"
 	],
 	"/game_multiplayer": [
-		"src/routes/game_multiplayer/+page.js"
+		"src/routes/game_multiplayer/+page.js",
+		"src/routes/+layout.server.js"
 	],
 	"/game": [
-		"src/routes/game/+page.js"
+		"src/routes/game/+page.js",
+		"src/routes/+layout.server.js"
 	],
 	"/main": [
-		"src/routes/main/+page.js"
+		"src/routes/+layout.server.js"
 	],
 	"/multiplayer_room": [
-		"src/routes/multiplayer_room/+page.js"
+		"src/routes/+layout.server.js"
 	],
 	"/multiplayer": [
-		"src/routes/multiplayer/+page.js"
+		"src/routes/multiplayer/+page.js",
+		"src/routes/+layout.server.js"
 	],
 	"/singleplayer": [
-		"src/routes/singleplayer/+page.js"
+		"src/routes/+layout.server.js"
 	]
 }

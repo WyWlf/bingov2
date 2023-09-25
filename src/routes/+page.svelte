@@ -48,8 +48,7 @@
         display: flex;
         flex-direction: column;
         background-color: skyblue;
-        width: 50%;
-        height: 88vh;
+        height: 88%;
         box-sizing: border-box;
         background-image: url('assets/images/mountains-background-game-vector.jpg');
         background-position: center;
@@ -67,7 +66,7 @@
     .welcome-page {
         border: 5px solid skyblue;
         background-color: transparent;
-        width: 90%;
+        width: 50%;
         height: 100%;
         margin: auto;
         margin-bottom: 2rem;
@@ -85,7 +84,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100%;
+        height: 10vh;
         width: 100%;
         border: 1px solid skyblue;
         box-sizing: border-box;
@@ -109,6 +108,11 @@
             width: 80%;
         }
     }
+    @media (max-width: 768px) {
+        .welcome-page {
+            width: 90%;
+        }
+    }
     @media (max-width: 468px) {
         .vertical-box {
             width: 100%;
@@ -118,6 +122,7 @@
         }
         .selector-content {
             font-size: 1rem;
+            height: 10vh;
         }
     }
 </style>

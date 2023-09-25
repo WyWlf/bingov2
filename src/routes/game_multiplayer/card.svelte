@@ -5,6 +5,7 @@
 	import incorrect from '../assets/music/wronganswer-37702.mp3';
 	import { io } from '$lib/webSocketConnection.js';
 	import lowTime from '../assets/music/time.wav';
+	import { onDestroy } from 'svelte';
 	export let questionString: Array<any> = [];
 	let counter = 0;
 	trigger.subscribe(val => {
@@ -91,6 +92,13 @@
 		loweff.volume = 0
 		border_warn = ''
 	}
+
+	onDestroy(() => {
+		console.log('x')
+		clearInterval(intervs)
+	})
+
+	$:console.log('timer:' + countdown)
 </script>
 
 <div class="card-container">

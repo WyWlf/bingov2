@@ -159,5 +159,11 @@ export default function injectSocketIO(server) {
 				socket.emit('gameInfoRes', obj)
 			}
 		})
+		socket.on('closed', data => {
+			let obj = players.find(o => o.room === data['room'])
+			if (obj != null){
+				obj['ended'] = true
+			}
+		})
 	})
 }

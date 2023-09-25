@@ -6,6 +6,7 @@
 	//@ts-ignore
 	import FaInfoCircle from 'svelte-icons/fa/FaInfoCircle.svelte';
 	import Cookies from 'js-cookie';
+	import { onDestroy } from 'svelte';
 	let boxes = Array(25);
 	let score: any;
 	let gameData: any;
@@ -30,6 +31,14 @@
 		opened = true;
 		console.log(gameData['winner']);
 	}
+
+	onDestroy(() => {
+		if (gameData['players'].length - 1 <= 0) {
+			io.emit('closed', {
+				room: Cookies.get('multiplayer_session')
+			});
+		}
+	});
 </script>
 
 <div class="container">
@@ -127,7 +136,7 @@
 						<FaInfoCircle />
 					</div>
 					<p style="margin: auto; color: white">This player has lost connection...</p>
-					<br/>
+					<br />
 					<div class="user-header" style="color: black">{player}</div>
 					<br /><br />
 					<div class="user-card">
@@ -179,7 +188,13 @@
 		>
 			<p>There are no more players left.</p>
 			<a href="/multiplayer">
-				<button>Close match.</button>
+				<button
+					on:click={() => {
+						io.emit('closed', {
+							room: Cookies.get('multiplayer_session')
+						});
+					}}>Close match.</button
+				>
 			</a>
 		</div>
 	{/if}
@@ -341,6 +356,12 @@
 	@media (max-width: 768px) {
 		.button-footer button {
 			width: 40vw;
+		}
+	}
+
+	@media (max-height: 650px) {
+		.button-footer button {
+			height: 10vh;
 		}
 	}
 </style>

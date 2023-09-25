@@ -264,6 +264,11 @@
 		justify-self: center;
 		font-size: 1.5em;
 	}
+	@media (max-height: 650px){
+		button {
+			height: 15vh;
+		}
+	}
 	@media (max-width: 768px) {
 		button {
 			font-size: 1.5rem;
