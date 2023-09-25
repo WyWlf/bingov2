@@ -21,47 +21,44 @@
 	}
 </script>
 
-<body data-sveltekit-preload-data="off">
-	<div class="title">
-		<h1>MATH</h1>
-		<h2>BINGO</h2>
+<div class="title">
+	<h1>MATH</h1>
+	<h2>BINGO</h2>
+</div>
+<hr />
+{#if show == true}
+	<div class="loader-container">
+		<Loader />
 	</div>
-	<hr />
-	{#if show == true}
-		<div class="loader-container">
-			<Loader />
-		</div>
-	{/if}
-	<div id="btn-div" class={blurEffect}>
-		<a href="/singleplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}
-			><button>Single Player Mode</button></a
-		>
-		<a href="/multiplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}
-			><button>Multiplayer Mode</button></a
-		>
-		<a href="" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}
-		class="disabled"
-			><button>Leaderboards
-			</button></a
-		>
-		<a
-			href="/account/?user={Cookies.get('username')}"
-			on:focus={audioEff}
-			on:mouseover={audioEff}
-			on:click={clickEff}><button>Match History</button></a
-		>
+{/if}
+<div id="btn-div" class={blurEffect}>
+	<a href="/singleplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}
+		><button>Single Player Mode</button></a
+	>
+	<a href="/multiplayer" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff}
+		><button>Multiplayer Mode</button></a
+	>
+	<a href="/" on:focus={audioEff} on:mouseover={audioEff} on:click={clickEff} class="disabled"
+		><button>Leaderboards </button></a
+	>
+	<a
+		data-sveltekit-preload-data="off"
+		href="/account/?user={Cookies.get('username')}"
+		on:focus={audioEff}
+		on:mouseover={audioEff}
+		on:click={clickEff}><button>Match History</button></a
+	>
 
-		<br /><br />
-		<a
-			href="/"
-			on:click={() => {
-				Cookies.remove('username');
-			}}
-		>
-			<button on:focus={audioEff} on:mouseover={audioEff}>Log out</button>
-		</a>
-	</div>
-</body>
+	<br /><br />
+	<a
+		href="/"
+		on:click={() => {
+			Cookies.remove('username');
+		}}
+	>
+		<button on:focus={audioEff} on:mouseover={audioEff}>Log out</button>
+	</a>
+</div>
 
 <style>
 	.blurred {
