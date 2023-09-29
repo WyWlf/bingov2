@@ -1,1 +1,0 @@
-const e=""+new URL("../assets/bg_music.fe6a241a.mp3",import.meta.url).href,r=""+new URL("../assets/wronganswer-37702.33532e17.mp3",import.meta.url).href,s=""+new URL("../assets/correct.568a0664.mp3",import.meta.url).href;export{e as b,s as c,r as i};
