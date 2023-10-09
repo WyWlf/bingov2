@@ -480,7 +480,7 @@
 			<small style="color: brown;">If spectator mode is activated,</small>
 			<br />
 			<small style="color: brown;">
-				The host would be unable to play and can only spectate the progress of the players.
+				You can only watch the progress of the players in the match.
 			</small>
 			<p>
 				Customize questions: <button
@@ -492,7 +492,7 @@
 				>
 			</p>
 			<small style="color: brown;">
-				You can customize your own questions by modifying the auto-generated questions.
+				You can use your own customize questions for this match.
 			</small>
 		{/if}
 		<div class="room-logs">
@@ -505,11 +505,11 @@
 			{/key}
 		</div>
 		{#if Cookies.get('host') == 'true'}
-			<p style="font-weight: bold;">Waiting for other players.</p>
+			<p style="font-weight: bold;">Waiting for other players</p>
 		{:else}
-			<p style="font-weight: bold;">Waiting for other players.</p>
+			<p style="font-weight: bold;">Waiting for other players</p>
 			<br />
-			<p style="font-weight: bold;">Only the host can start the game.</p>
+			<p style="font-weight: bold;">Only the host can start the game</p>
 		{/if}
 		<div class="button-group-modal" style="display:flex; gap: 2rem">
 			{#if host == 'true'}
@@ -589,7 +589,7 @@
 			<div style="display: flex;">
 				<div style="display: flex; flex-direction:column; margin: auto;">
 					<small style="text-align: unset;"> 🟦 = Player is currently active. </small>
-					<small style="text-align: unset;"> 🟥 = Player has lost all of their HP. </small>
+					<small style="text-align: unset;"> 🟥 = Player has lost the game. </small>
 					<small style="text-align: unset;"> ⬛ = Player has been disconnected. </small>
 				</div>
 			</div>
@@ -635,7 +635,7 @@
 				{#if gameEnd == false && winner == Cookies.get('username')}
 					<div class="modal-container">
 						<span>🎉You have won!🎉</span><br /><br />
-						<small>Game has been recorded to your match history.</small>
+						<small>This match has been recorded to your match history</small>
 						<br /><br />
 						<hr />
 						<span>Game Stats</span>
@@ -667,8 +667,9 @@
 					</div>
 				{:else if gameEnd == false && winner != Cookies.get('username')}
 					<div class="modal-container">
-						<span>You have lost!</span><br /><br />
-						<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
+						<span>You have lost!</span>
+						<br /><br />
+						<small>Someone else have completed their BINGO card first! Better luck next time</small>
 						<br /><br />
 						<hr />
 						<div class="button-group" style="justify-content: center;">

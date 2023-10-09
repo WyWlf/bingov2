@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db   = 'bingo';
+$db   = 'bingo1';
 $user = 'root';
 $pass = '';
 

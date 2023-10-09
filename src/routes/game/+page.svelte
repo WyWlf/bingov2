@@ -21,6 +21,7 @@
 	let answers: Array<any> = [];
 	let questionString: Array<any> = [];
 	let bgMsc = new Audio(bg_msc);
+	let defaultLoseMsg = "You've ran out of HP!"
 	bgMsc.volume = 0.1;
 	setTimeout(() => {
 		bgMsc.play();
@@ -294,6 +295,9 @@
 
 	hp.subscribe((val) => {
 		if (val == 0) {
+			if (hardcore == 'on'){
+				defaultLoseMsg = 'Your answer is incorrect!'
+			}
 			gameEnd = true;
 			opened = true;
 			clearInterval(time);
@@ -349,7 +353,7 @@
 	</div>
 
 	<hr />
-	<body>
+	<body style="margin: 0;">
 		<div>
 			<Card {questionString}>
 				{#each answers as a, i}
@@ -369,7 +373,7 @@
 				{#if gameEnd == false}
 					<div class="modal-container">
 						<span>🎉You have won!🎉</span><br /><br />
-						<small>Game has been recorded to your match history.</small>
+						<small>This game has been saved to your match history.</small>
 						<br /><br />
 						<hr />
 						<span>Game Stats</span>
@@ -387,7 +391,7 @@
 					</div>
 				{:else if gameEnd == true}
 					<div class="modal-container">
-						<span>You've ran out of HP!</span><br /><br />
+						<span>{defaultLoseMsg}</span><br /><br />
 						<small>Tip: You can regain HP from answering correctly 5 times consecutively</small>
 						<br /><br />
 						<hr />
@@ -422,8 +426,6 @@
 		height: 100% !important;
 	}
 	#header {
-		height: 20svh;
-		height: 20vh;
 		background-color: white;
 	}
 	.modal-container {

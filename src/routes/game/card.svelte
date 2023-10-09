@@ -199,7 +199,7 @@
 	}
 	.card-container {
 		display: flex;
-		height: max-content;
+		min-height: 80vh;
 		background-color: rgb(112, 166, 212);
 		justify-content: flex-end;
 	}
@@ -231,6 +231,7 @@
 		flex-direction: column;
 		width: 100%;
 		margin: 3em;
+		gap: 1rem;
 	}
 
 	.question div {
@@ -281,8 +282,6 @@
 			width: 100%;
 			margin: auto;
 			margin-top: 10%;
-			/* grid-template-columns: repeat(5, minmax(1fr, 15vw));
-			grid-template-rows: (repeat(5 , minmax(1fr, 10vh))); */
 		}
 		.mobile-view > .question-box {
 			display: flex;
@@ -295,12 +294,6 @@
 			align-self: center;
 			font-size: 2rem;
 		}
-
-		/* .card img {
-			margin: auto;
-			height: 3rem;
-			width: 3rem;
-		} */
 		.question-box p {
 			font-size: 1.2rem;
 			font-family: light;

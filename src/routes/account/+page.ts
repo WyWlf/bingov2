@@ -18,3 +18,4 @@ export async function load({ url }) {
         post : loadMatches()
      }
 }
+export const ssr = false

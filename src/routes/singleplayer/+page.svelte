@@ -257,7 +257,7 @@
 		border-radius: 15px;
 		height: 10vh;
 		width: 50vw;
-		font-size: 2em;
+		font-size: 1.5rem;
 	}
 
 	p {
