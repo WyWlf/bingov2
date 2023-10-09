@@ -14,6 +14,7 @@
 	let correctLowest: number;
 	let wrongHighest: number;
 	let correctHighest: number;
+	let players : number;
 	async function getWinner(id: string, game_id: number) {
 		const stats = await fetch(PUBLIC_APIPATH + 'getWinner.php', {
 			method: 'POST',
@@ -23,7 +24,7 @@
 			})
 		});
 		let res = await stats.json();
-		return res;
+		return res
 	}
 
 	async function graphData(game_id: number) {
@@ -76,6 +77,7 @@
 		wrongHighest = highestW;
 		correctMean = correctTotal / participants;
 		wrongMean = wrongTotal / participants;
+		players = participants
 	}
 	const graphOptions = {
 		title: "Player's statistic",
@@ -315,6 +317,8 @@
 		/>
 		<div class="grid grid-col-2 gap-2">
 			<p class="text-center col-span-2 font-bold">Other information:</p>
+			<p class="">Number of participants:</p>
+			<span class="text-center">{players}</span>
 			<p class="">Highest correct answers:</p>
 			<span class="text-center">{correctHighest}</span>
 			<p class="">Lowest correct answers:</p>
