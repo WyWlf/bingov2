@@ -79,11 +79,6 @@
 		wrongMean = wrongTotal / participants;
 		players = participants
 	}
-	const graphOptions = {
-		title: "Player's statistic",
-		height: '400px',
-		theme: 'g100'
-	};
 </script>
 
 <div class="main-body">
