@@ -219,7 +219,9 @@
 												</span>
 												<br />
 												<div class="stats">
-													{#await getWinner(winner, game) then data}
+													{#await getWinner(winner, game)} 
+													<p>Loading...</p>
+													{:then data}
 														<b>Highest answer streak: </b>
 														<p>{data[0].highest_streak}</p>
 														<b>Correct answers: </b>

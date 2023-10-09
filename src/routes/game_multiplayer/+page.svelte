@@ -643,7 +643,7 @@
 						<div class="game-stat">
 							<p>Time finished</p>
 							<p style="text-align: left;">: {time_finished}</p>
-							<p>Highest answer streak</p>
+							<p style="text-align: left;">Highest answer streak</p>
 							<p>: {highest}</p>
 							<p>Correct answers</p>
 							<p>: {get(correct_count)}</p>
